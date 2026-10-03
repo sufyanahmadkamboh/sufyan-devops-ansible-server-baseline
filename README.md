@@ -168,7 +168,7 @@ The main variables, all with safe defaults in each role's `defaults/main.yml`:
 | Static | `make lint`, `make promtool` | yamllint, ansible-lint (production), syntax, ShellCheck, 7 unit tests, alert-rule unit tests |
 | Molecule | `make molecule` | every role on Ubuntu 24.04, Debian 12, Debian 13: converge → idempotence (0 changes) → verify |
 | Lab end-to-end | `make e2e` | real SSH: before/after logins and Lynis, firewall, brute-force ban + alert, unban, drift detect/repair, 3 safety nets, monitoring |
-| Real VM | CI job `vm` (`scripts/vm-test.sh`) | auditd loaded and recording, all 34 kernel settings live, Lynis on a real kernel |
+| Real VM | CI job `vm` (`scripts/vm-test.sh`) | idempotent on a real machine, all 34 kernel settings live, auditd rules loaded, Lynis 61 → 73 on a real kernel |
 
 All four run in GitHub Actions on every push ([workflow](.github/workflows/ci.yaml)).
 

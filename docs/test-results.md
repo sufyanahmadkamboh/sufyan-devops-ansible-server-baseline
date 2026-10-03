@@ -118,15 +118,32 @@ Prometheus had 2 series each for `lynis_hardening_index` (77, 77), `fail2ban_up`
 and `node_systemd_unit_state{name="ssh.service",state="active"}`. The dashboard screenshot in the README
 was taken at the end of the same run.
 
-## 4. Real VM (CI job `vm`)
+## 4. Real VM (CI job `vm`, GitHub-hosted Ubuntu 24.04, kernel 6.17.0-1022-azure)
 
-Runs `scripts/vm-test.sh` on the GitHub-hosted Ubuntu 24.04 runner itself:
-- the full baseline is applied, then applied again (it must report 0 changes)
-- the verify playbook checks all 34 kernel settings live and the loaded auditd rules
-- a change to `/etc/hosts` must appear in `ausearch -k network`
-- Lynis runs before and after
+`scripts/vm-test.sh` applies the baseline to the runner itself, the parts containers cannot test.
 
-Results are in the job summary of each CI run.
+| Check | Result |
+|---|---|
+| First run | 50 changes in 121 s |
+| Second run | **0 changes** in 45 s (idempotent on a real machine) |
+| verify.yml | passed: **all 34 kernel settings live**, auditd running, every audit rule loaded in the kernel |
+| Audit event recorded for an account change | **not verifiable on this runner** (see below) |
+| Lynis hardening index | 61 → **73** |
+| Lynis suggestions | 41 → 33 (8 resolved: ACCT-9628, AUTH-9328, BANN-7126, BANN-7130, KRNL-5820, NETW-3200, PKGS-7394, PKGS-7420) |
+| Lynis warnings | 3 → 5 (reported as measured; the runner is a shared CI image with extra software) |
+
+**Audit events on GitHub-hosted runners.** auditd was running (`enabled 1`) and every baseline rule was loaded
+(`auditctl -l`), but the kernel produced no syscall records at all, for any rule. That includes rules unrelated
+to the test, so this is not caused by the watch on `/etc/passwd`.
+
+The runner's evidence:
+- The kernel is built with `CONFIG_AUDITSYSCALL=y`.
+- There is no `audit=0` on the kernel command line.
+- The runner's own `audit.rules` only sets buffers.
+
+The root cause was not determined. The test reports **"not verifiable here"** instead of passing or hiding it,
+and it still fails if records exist but the change was not recorded. Recording itself is standard auditd behaviour
+and should be confirmed once on a real server with `sudo ausearch -k identity` after creating a user.
 
 ## 5. Problems found by these tests
 
@@ -138,5 +155,6 @@ Results are in the job summary of each CI run.
 | Molecule | downloads.cisofy.com answers 403 to Ansible | pinned GitHub release archive + SHA-256 |
 | e2e | lab image's host-key unit could lose a race against Ubuntu's `ssh.socket` | keys generated inside `ssh.service` |
 | e2e | first drift count included handlers (5 instead of 3) | drift check lists tasks only |
+| VM job | fixed 2 s wait, then a filter mismatch, then no kernel syscall records at all | poll the log; report "not verifiable" with evidence when the kernel emits nothing |
 | e2e | unban check that sent an SSH probe was itself counted as a failure | check the nftables ban set instead |
 | dashboard review | auditd shown as "stopped" on containers, where it cannot run | hidden for `kind="container"` |

@@ -75,7 +75,7 @@ SSHAttackerBanned, Fail2banNotAnswering, MetricsFileBroken, DiskAlmostFull.
 | Static | CI `static` | yamllint, ansible-lint (production profile), syntax check, ShellCheck, 7 pytest tests, promtool rule tests, compose and dashboard validity |
 | Molecule | CI `molecule` | every role converges on Ubuntu 24.04, Debian 12 and Debian 13; second run changes nothing; all verify checks pass |
 | Lab end-to-end | CI `lab-e2e`, `make e2e` | over real SSH: before/after Lynis, logins, root, firewall, brute-force ban + alert, drift detect and repair, three safety nets |
-| Real VM | CI `vm` | the parts containers cannot test: auditd loaded and recording, every kernel setting live, Lynis on a real kernel |
+| Real VM | CI `vm` | the parts containers cannot test: auditd rules loaded, every kernel setting live, idempotence and Lynis (61 → 73) on a real kernel |
 
 ## Decision log
 

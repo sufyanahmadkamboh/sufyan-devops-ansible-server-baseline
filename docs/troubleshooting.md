@@ -74,6 +74,12 @@ change the Docker host. All 34 are checked on the CI VM.
 **`Destination directory /etc/modprobe.d does not exist`**
 Minimal container images have no kmod configuration directory. The role creates it.
 
+**No audit records on GitHub-hosted runners**
+On the Azure-based Ubuntu runners, auditd ran and all rules were loaded, but the kernel produced no syscall
+records at all (for any rule). The VM test reports this as "not verifiable here", with the evidence: the kernel
+config, the command line and the runner's audit.rules. On your own servers, check recording with
+`sudo useradd t1 && sudo ausearch -k identity -i | tail`.
+
 ## Downloads
 
 **Lynis download returns HTTP 403**
