@@ -62,7 +62,13 @@ if [[ "$found" == yes ]]; then
   record "- PASS: auditd recorded the account change in /etc/passwd (key: identity)"
 else
   record "- FAIL: auditd did not record the account change"
-  { sudo auditctl -s; sudo auditctl -l | grep -i passwd; sudo ausearch -k identity -i | tail -n 20; } >&2 || true
+  {
+    echo "--- auditctl -s"; sudo auditctl -s
+    echo "--- loaded rules"; sudo auditctl -l
+    echo "--- /etc/audit/rules.d"; sudo ls -la /etc/audit/rules.d
+    echo "--- kernel"; uname -a; grep -E 'CONFIG_AUDIT(SYSCALL)?=' "/boot/config-$(uname -r)" || true
+    echo "--- recent SYSCALL records"; sudo ausearch -m SYSCALL -ts recent 2>&1 | tail -n 5
+  } >&2 || true
   exit 1
 fi
 record "- auditd rules loaded: $(sudo auditctl -l | wc -l)"
