@@ -1,0 +1,78 @@
+---
+# Tests every role on three distributions in systemd containers:
+# create -> converge -> idempotence (2nd run must change nothing) -> verify -> destroy.
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu2404
+    image: geerlingguy/docker-ubuntu2404-ansible:latest
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: ""
+    groups: [baseline]
+  - name: debian12
+    image: geerlingguy/docker-debian12-ansible:latest
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: ""
+    groups: [baseline]
+  - name: debian13
+    image: geerlingguy/docker-debian13-ansible:latest
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: ""
+    groups: [baseline]
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/roles
+      callback_result_format: yaml
+  inventory:
+    group_vars:
+      baseline:
+        # A public key whose private half was thrown away: it only has to exist, nobody logs in with it.
+        common_admin_users:
+          - name: ops
+            pubkeys:
+              - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINyZw4FjdbCm2ktDrm7MSTeAUoAz4yPsrGzVgyeucPpR molecule-test-key-private-half-discarded
+        firewall_rules:
+          - name: ssh
+            port: 22
+            sources_v4: ["0.0.0.0/0"]
+            sources_v6: ["::/0"]
+          - name: node-exporter
+            port: 9100
+            sources_v4: ["10.0.0.0/8"]
+            sources_v6: []
+  # All three containers at once (the lab and production default is one server at a time).
+  # `serial` is a play keyword, so it can only come from extra vars, not from the inventory.
+  options:
+    extra-vars: baseline_serial=0
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+
+verifier:
+  name: ansible
+
+scenario:
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - converge
+    - idempotence
+    - verify
+    - destroy

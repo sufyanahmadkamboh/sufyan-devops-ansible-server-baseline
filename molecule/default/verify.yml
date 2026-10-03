@@ -1,0 +1,3 @@
+---
+- name: Verify the baseline
+  ansible.builtin.import_playbook: ../../playbooks/verify.yml

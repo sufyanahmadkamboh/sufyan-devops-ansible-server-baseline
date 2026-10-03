@@ -1,0 +1,103 @@
+---
+# Local lab: two servers to harden, an attacker, and the monitoring stack.
+# Start it with `make lab-up` (creates the SSH key and Grafana password first).
+name: server-baseline-lab
+
+x-server: &server
+  privileged: true          # systemd needs it; this is a lab, not a production pattern
+  cgroup: host
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup:rw
+
+services:
+  # Ansible control node. The SSH key lives in a Docker volume, never in the repository.
+  controller:
+    build:
+      context: ..
+      dockerfile: lab/controller/Dockerfile
+    image: server-baseline-controller:dev
+    volumes:
+      - ..:/work
+      - keys:/keys
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      lab:
+        ipv4_address: 172.30.0.5
+
+  web-01:
+    <<: *server
+    build:
+      context: target
+      args:
+        BASE: geerlingguy/docker-ubuntu2404-ansible:latest
+    image: server-baseline-target:ubuntu2404
+    hostname: web-01
+    networks:
+      lab:
+        ipv4_address: 172.30.0.21
+
+  db-01:
+    <<: *server
+    build:
+      context: target
+      args:
+        BASE: geerlingguy/docker-debian12-ansible:latest
+    image: server-baseline-target:debian12
+    hostname: db-01
+    networks:
+      lab:
+        ipv4_address: 172.30.0.22
+
+  # Used by the tests to play the attacker: SSH brute force and port scans.
+  attacker:
+    image: server-baseline-controller:dev
+    command: ["sleep", "infinity"]
+    networks:
+      lab:
+        ipv4_address: 172.30.0.66
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+    ports:
+      - "127.0.0.1:9090:9090"
+    networks:
+      lab:
+        ipv4_address: 172.30.0.10
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/server-baseline.json
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+    secrets:
+      - grafana_admin_password
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      lab:
+        ipv4_address: 172.30.0.11
+
+secrets:
+  grafana_admin_password:
+    file: ../.lab/grafana-admin-password
+
+volumes:
+  keys:
+
+networks:
+  lab:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

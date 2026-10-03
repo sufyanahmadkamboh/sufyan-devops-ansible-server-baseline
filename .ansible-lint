@@ -1,0 +1,14 @@
+---
+profile: production
+exclude_paths:
+  - .lab/
+  - reports/
+  - study/
+  - linkedin/
+  - docs/
+  - lab/grafana/
+  - .github/
+kinds:
+  - playbook: "playbooks/*.yml"
+  - playbook: "molecule/*/converge.yml"
+  - playbook: "molecule/*/verify.yml"

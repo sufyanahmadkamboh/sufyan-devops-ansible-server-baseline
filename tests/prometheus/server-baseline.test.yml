@@ -1,0 +1,134 @@
+---
+# promtool test rules tests/prometheus/server-baseline.test.yml
+rule_files:
+  - ../../lab/prometheus/rules/server-baseline.yml
+
+evaluation_interval: 1m
+
+tests:
+  # A stopped firewall fires after 2 minutes; a healthy one never does.
+  - interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="web-01",name="server-baseline-firewall.service",state="active",type="oneshot"}'
+        values: "1 1 0 0 0 0"
+      - series: 'node_systemd_unit_state{instance="db-01",name="server-baseline-firewall.service",state="active",type="oneshot"}'
+        values: "1 1 1 1 1 1"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: SecurityServiceNotRunning
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: SecurityServiceNotRunning
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: web-01
+              name: server-baseline-firewall.service
+              state: active
+              type: oneshot
+            exp_annotations:
+              summary: "server-baseline-firewall.service is not running on web-01"
+              description: "Re-apply the baseline (make harden) or check: systemctl status server-baseline-firewall.service"
+
+  # auditd only matters on real machines, not in containers.
+  - interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="vm-01",name="auditd.service",state="active",type="notify"}'
+        values: "0x5"
+      - series: 'server_baseline_info{instance="vm-01",kind="machine",os="Ubuntu 24.04",version="1.0.0"}'
+        values: "1x5"
+      - series: 'node_systemd_unit_state{instance="web-01",name="auditd.service",state="active",type="notify"}'
+        values: "0x5"
+      - series: 'server_baseline_info{instance="web-01",kind="container",os="Ubuntu 24.04",version="1.0.0"}'
+        values: "1x5"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: AuditdNotRunning
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: vm-01
+              name: auditd.service
+              state: active
+              type: notify
+            exp_annotations:
+              summary: "auditd is not running on vm-01"
+              description: "Changes to accounts, sudo and SSH settings are not being recorded."
+
+  # Score below target for 15 minutes.
+  - interval: 5m
+    input_series:
+      - series: 'lynis_hardening_index{instance="web-01"}'
+        values: "82 82 70 70 70 70 70"
+      - series: 'lynis_hardening_index{instance="db-01"}'
+        values: "84x6"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: LynisScoreLow
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: LynisScoreLow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: web-01
+            exp_annotations:
+              summary: "web-01 Lynis hardening index is 70 (target 75+)"
+              description: "Something weakened the server or the baseline was never applied. Run: make audit"
+
+  # The last audit finished at time 0 and nothing ran since: stale after 8 days (+1h "for").
+  # (samples every 5m: sparser samples go stale between scrapes and reset the "for" timer)
+  - interval: 5m
+    input_series:
+      - series: 'lynis_last_run_timestamp_seconds{instance="web-01"}'
+        values: "0x2700"
+    alert_rule_test:
+      - eval_time: 7d
+        alertname: LynisReportStale
+        exp_alerts: []
+      - eval_time: 9d
+        alertname: LynisReportStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: web-01
+            exp_annotations:
+              summary: "No Lynis audit on web-01 for more than 8 days"
+              description: "The weekly server-baseline-audit.timer did not run. Check: systemctl list-timers"
+
+  # A ban shows up immediately.
+  - interval: 1m
+    input_series:
+      - series: 'fail2ban_banned_current{instance="db-01",jail="sshd"}'
+        values: "0 1 1"
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: SSHAttackerBanned
+        exp_alerts: []
+      - eval_time: 1m
+        alertname: SSHAttackerBanned
+        exp_alerts:
+          - exp_labels:
+              severity: info
+              instance: db-01
+              jail: sshd
+            exp_annotations:
+              summary: "fail2ban is blocking 1 address(es) on db-01"
+              description: "Someone kept failing SSH logins and was banned. Usually noise from scanners; check if it is a colleague."
+
+  # Prometheus cannot scrape a server.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="node",instance="db-01"}'
+        values: "1 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: ServerDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: node
+              instance: db-01
+            exp_annotations:
+              summary: "db-01 stopped answering metrics requests"
+              description: "The server is down, node_exporter stopped, or the firewall blocks Prometheus."
