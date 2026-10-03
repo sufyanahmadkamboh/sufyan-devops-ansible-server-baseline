@@ -48,19 +48,21 @@ read -r secs _ <<< "$(run verify playbooks/verify.yml)"
 record "- PASS: verify playbook (all kernel settings and auditd checked live) in $secs s"
 grep -E 'kernel settings checked live' "reports/vm-verify.log" | head -n1 | sed 's/^ *msg: */- /' | tee -a "$RESULTS"
 
-# auditd must record a change to a watched file. auditd writes its log asynchronously, so poll.
-marker="audit-test-$(date +%s)"
-echo "# $marker" | sudo tee -a /etc/hosts >/dev/null
+# auditd must record account changes: creating a user writes /etc/passwd (watched, key "identity").
+# auditd writes its log asynchronously, so poll for up to 15 s.
+user="audittest$(date +%s | tail -c 5)"
+sudo useradd --no-create-home --shell /usr/sbin/nologin "$user"
 found=no
 for _ in $(seq 1 15); do
-  if sudo ausearch -k network -i 2>/dev/null | grep -q 'name=/etc/hosts'; then found=yes; break; fi
+  if sudo ausearch -k identity -i 2>/dev/null | grep -q 'name=/etc/passwd'; then found=yes; break; fi
   sleep 1
 done
+sudo userdel "$user" || true
 if [[ "$found" == yes ]]; then
-  record "- PASS: auditd recorded the change to /etc/hosts (key: network)"
+  record "- PASS: auditd recorded the account change in /etc/passwd (key: identity)"
 else
-  record "- FAIL: auditd did not record the change to /etc/hosts"
-  { sudo auditctl -s; sudo auditctl -l | grep -i hosts; sudo tail -n 20 /var/log/audit/audit.log; } >&2 || true
+  record "- FAIL: auditd did not record the account change"
+  { sudo auditctl -s; sudo auditctl -l | grep -i passwd; sudo ausearch -k identity -i | tail -n 20; } >&2 || true
   exit 1
 fi
 record "- auditd rules loaded: $(sudo auditctl -l | wc -l)"
