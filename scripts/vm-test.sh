@@ -48,13 +48,20 @@ read -r secs _ <<< "$(run verify playbooks/verify.yml)"
 record "- PASS: verify playbook (all kernel settings and auditd checked live) in $secs s"
 grep -E 'kernel settings checked live' "reports/vm-verify.log" | head -n1 | sed 's/^ *msg: */- /' | tee -a "$RESULTS"
 
-# auditd must record a change to a watched file.
-echo "# audit test $(date +%s)" | sudo tee -a /etc/hosts >/dev/null
-sleep 2
-if sudo ausearch -k network -f /etc/hosts -ts recent >/dev/null 2>&1; then
+# auditd must record a change to a watched file. auditd writes its log asynchronously, so poll.
+marker="audit-test-$(date +%s)"
+echo "# $marker" | sudo tee -a /etc/hosts >/dev/null
+found=no
+for _ in $(seq 1 15); do
+  if sudo ausearch -k network -i 2>/dev/null | grep -q 'name=/etc/hosts'; then found=yes; break; fi
+  sleep 1
+done
+if [[ "$found" == yes ]]; then
   record "- PASS: auditd recorded the change to /etc/hosts (key: network)"
 else
-  record "- FAIL: auditd did not record the change to /etc/hosts"; exit 1
+  record "- FAIL: auditd did not record the change to /etc/hosts"
+  { sudo auditctl -s; sudo auditctl -l | grep -i hosts; sudo tail -n 20 /var/log/audit/audit.log; } >&2 || true
+  exit 1
 fi
 record "- auditd rules loaded: $(sudo auditctl -l | wc -l)"
 
