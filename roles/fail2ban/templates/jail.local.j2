@@ -1,0 +1,18 @@
+# Managed by Ansible (role: fail2ban). Local edits are reverted on the next run.
+[DEFAULT]
+ignoreip = {{ (fail2ban_ignoreip + fail2ban_ignoreip_extra) | join(' ') }}
+bantime = {{ fail2ban_bantime }}
+findtime = {{ fail2ban_findtime }}
+maxretry = {{ fail2ban_maxretry }}
+bantime.increment = {{ 'true' if fail2ban_bantime_increment | bool else 'false' }}
+bantime.maxtime = {{ fail2ban_bantime_maxtime }}
+# Bans are added to fail2ban's own nftables table, next to the baseline firewall table.
+banaction = nftables[type=multiport]
+banaction_allports = nftables[type=allports]
+
+[sshd]
+enabled = true
+port = {{ fail2ban_ssh_port }}
+backend = systemd
+# "aggressive" also counts scanners that never get as far as trying a key or password.
+mode = aggressive

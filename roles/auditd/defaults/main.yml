@@ -1,0 +1,29 @@
+---
+# The kernel's audit system is not available inside containers, so there the rules are
+# installed but not loaded. On real machines and VMs everything is applied.
+auditd_in_container: >-
+  {{ ansible_facts['virtualization_role'] == 'guest'
+     and ansible_facts['virtualization_type'] in ['docker', 'podman', 'container', 'containerd', 'lxc'] }}
+auditd_manage_service: "{{ not (auditd_in_container | bool) }}"
+
+# Keep 10 files of 50 MB, then rotate.
+auditd_max_log_file: 50
+auditd_num_logs: 10
+
+# Immutable mode (-e 2) blocks rule changes until reboot. Safer, but every rule change then
+# needs a reboot, so it is off by default.
+auditd_immutable: false
+
+# Files whose changes are recorded, with the key used to search for them (ausearch -k <key>).
+auditd_watches:
+  - {path: /etc/passwd, key: identity}
+  - {path: /etc/group, key: identity}
+  - {path: /etc/shadow, key: identity}
+  - {path: /etc/gshadow, key: identity}
+  - {path: /etc/sudoers, key: privilege}
+  - {path: /etc/sudoers.d/, key: privilege}
+  - {path: /etc/ssh/sshd_config, key: sshd}
+  - {path: /etc/ssh/sshd_config.d/, key: sshd}
+  - {path: /etc/nftables.d/, key: firewall}
+  - {path: /etc/hosts, key: network}
+  - {path: /etc/systemd/system/, key: services}

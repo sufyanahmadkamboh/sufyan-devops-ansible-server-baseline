@@ -1,0 +1,12 @@
+---
+# Which updates are installed automatically comes from the distribution's own
+# 50unattended-upgrades file: on Debian and Ubuntu that is security updates only.
+
+# Reboot by itself when an update needs it (kernel, libc). Off by default: a reboot
+# should be a decision, and needrestart already restarts affected services.
+auto_updates_reboot: false
+auto_updates_reboot_time: "03:30"
+
+auto_updates_remove_unused_dependencies: true
+# Days between automatic `apt-get autoclean` runs.
+auto_updates_autoclean_interval: 7

@@ -1,0 +1,40 @@
+#!/bin/sh
+# Managed by Ansible (role: fail2ban)
+# Writes fail2ban's SSH jail counters in Prometheus format for node_exporter.
+set -eu
+
+out="{{ fail2ban_textfile_dir }}/fail2ban.prom"
+tmp="$(mktemp "${out}.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+if status="$(fail2ban-client status sshd 2>/dev/null)"; then
+  up=1
+else
+  up=0
+  status=""
+fi
+
+value() {
+  printf '%s\n' "$status" | sed -n "s/.*$1:[[:space:]]*\([0-9]*\).*/\1/p" | head -n1
+}
+
+{
+  echo "# HELP fail2ban_up Whether the fail2ban sshd jail answered (1) or not (0)."
+  echo "# TYPE fail2ban_up gauge"
+  echo "fail2ban_up{jail=\"sshd\"} $up"
+  if [ "$up" -eq 1 ]; then
+    echo "# HELP fail2ban_banned_current Addresses banned right now."
+    echo "# TYPE fail2ban_banned_current gauge"
+    echo "fail2ban_banned_current{jail=\"sshd\"} $(value 'Currently banned')"
+    echo "# HELP fail2ban_banned_total Addresses banned since fail2ban started."
+    echo "# TYPE fail2ban_banned_total counter"
+    echo "fail2ban_banned_total{jail=\"sshd\"} $(value 'Total banned')"
+    echo "# HELP fail2ban_failed_current Failed attempts being counted right now."
+    echo "# TYPE fail2ban_failed_current gauge"
+    echo "fail2ban_failed_current{jail=\"sshd\"} $(value 'Currently failed')"
+  fi
+} > "$tmp"
+
+chmod 0644 "$tmp"
+mv "$tmp" "$out"
+trap - EXIT

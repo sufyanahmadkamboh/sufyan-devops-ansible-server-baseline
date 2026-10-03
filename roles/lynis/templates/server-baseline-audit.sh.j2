@@ -1,0 +1,15 @@
+#!/bin/sh
+# Managed by Ansible (role: lynis)
+# Runs a Lynis security audit and publishes the score for Prometheus (node_exporter textfile).
+set -eu
+
+report=/var/log/lynis-report.dat
+
+cd "{{ lynis_install_dir }}"
+./lynis audit system --quick --no-colors --cronjob \
+  --report-file "$report" --logfile /var/log/lynis.log > /var/log/lynis-last-run.txt 2>&1
+
+/usr/bin/python3 /usr/local/lib/server-baseline/lynis_report.py prom "$report" \
+  --output "{{ lynis_textfile_dir }}/lynis.prom"
+
+grep -m1 '^hardening_index=' "$report"

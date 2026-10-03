@@ -1,0 +1,26 @@
+---
+- name: Ask fail2ban about the SSH jail
+  ansible.builtin.command: fail2ban-client status sshd
+  changed_when: false
+
+- name: Check the jail reads sshd messages from the systemd journal
+  ansible.builtin.command: fail2ban-client get sshd journalmatch
+  register: fail2ban_journal
+  changed_when: false
+  failed_when: "'sshd' not in fail2ban_journal.stdout"
+
+- name: Check the ban counters reach Prometheus
+  ansible.builtin.command: cat {{ fail2ban_textfile_dir }}/fail2ban.prom
+  register: fail2ban_metrics
+  changed_when: false
+  failed_when: false
+  when: fail2ban_textfile_metrics | bool
+  retries: 9
+  delay: 10
+  until: "'fail2ban_up{jail=\"sshd\"} 1' in fail2ban_metrics.stdout"
+
+- name: Fail if the counters never appeared
+  ansible.builtin.assert:
+    that: "'fail2ban_up{jail=\"sshd\"} 1' in fail2ban_metrics.stdout"
+    quiet: true
+  when: fail2ban_textfile_metrics | bool

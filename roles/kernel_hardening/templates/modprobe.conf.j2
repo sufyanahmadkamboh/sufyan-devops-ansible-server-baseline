@@ -1,0 +1,6 @@
+# Managed by Ansible (role: kernel_hardening)
+# "install ... /bin/false" stops the module loading even when something asks for it directly.
+{% for m in kernel_hardening_disabled_modules %}
+install {{ m }} /bin/false
+blacklist {{ m }}
+{% endfor %}

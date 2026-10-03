@@ -1,0 +1,20 @@
+---
+# 5 failed SSH attempts within 10 minutes = banned for 1 hour.
+fail2ban_maxretry: 5
+fail2ban_findtime: 10m
+fail2ban_bantime: 1h
+# Repeat offenders are banned for longer each time (1h, 2h, 4h ... up to 1 week).
+fail2ban_bantime_increment: true
+fail2ban_bantime_maxtime: 1w
+
+# Addresses that are never banned (for example the Ansible controller or a bastion).
+fail2ban_ignoreip:
+  - 127.0.0.1/8
+  - ::1
+fail2ban_ignoreip_extra: []
+
+fail2ban_ssh_port: 22
+
+# Export ban counters for Prometheus through node_exporter's textfile collector.
+fail2ban_textfile_metrics: true
+fail2ban_textfile_dir: /var/lib/node_exporter/textfile

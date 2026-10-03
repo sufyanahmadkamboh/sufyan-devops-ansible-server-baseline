@@ -1,0 +1,26 @@
+---
+- name: Fetch the metrics page locally
+  ansible.builtin.uri:
+    url: http://127.0.0.1:9100/metrics
+    return_content: true
+  register: node_exporter_page
+  retries: 6
+  delay: 5
+  until: node_exporter_page.status == 200
+
+- name: Check system, service-state and baseline metrics are exported
+  ansible.builtin.assert:
+    that:
+      - node_exporter_page.content is search('node_cpu_seconds_total')
+      - node_exporter_page.content is search('node_systemd_unit_state\{name="ssh.service",state="active",type="[a-z]+"\} 1')
+      - node_exporter_page.content is search('server_baseline_info\{kind="(container|machine)",os=')
+      - node_exporter_page.content is search('node_textfile_scrape_error 0')
+    quiet: true
+
+- name: Check node_exporter runs as its own unprivileged user
+  ansible.builtin.systemd_service:
+    name: node_exporter
+  register: node_exporter_unit
+  failed_when: >-
+    node_exporter_unit.status.User != 'node_exporter'
+    or node_exporter_unit.status.ActiveState != 'active'

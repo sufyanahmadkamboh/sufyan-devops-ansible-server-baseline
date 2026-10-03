@@ -1,0 +1,41 @@
+#!/usr/sbin/nft -f
+# Managed by Ansible (role: firewall). Local edits are reverted on the next run.
+#
+# Only this table is replaced. Tables owned by Docker, fail2ban and others are left alone,
+# which is why there is no "flush ruleset" here.
+table inet {{ firewall_table }}
+delete table inet {{ firewall_table }}
+
+table inet {{ firewall_table }} {
+  chain input {
+    type filter hook input priority filter; policy drop;
+
+    ct state invalid drop
+    ct state established,related accept
+    iif "lo" accept
+
+    # Ping and the error messages TCP/IP needs to work properly.
+    ip protocol icmp icmp type { echo-request, destination-unreachable, time-exceeded, parameter-problem } limit rate 20/second accept
+    ip6 nexthdr ipv6-icmp accept
+
+{% for rule in firewall_rules %}
+    # {{ rule.name }}
+{% if rule.sources_v4 | default([]) | length > 0 %}
+    ip saddr { {{ rule.sources_v4 | join(', ') }} } tcp dport {{ rule.port }} accept comment "{{ rule.name }}"
+{% endif %}
+{% if rule.sources_v6 | default([]) | length > 0 %}
+    ip6 saddr { {{ rule.sources_v6 | join(', ') }} } tcp dport {{ rule.port }} accept comment "{{ rule.name }}"
+{% endif %}
+{% endfor %}
+{% if firewall_log_dropped | bool %}
+
+    limit rate 10/minute log prefix "nft-baseline-drop: " level info
+{% endif %}
+  }
+{% if firewall_manage_forward | bool %}
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+  }
+{% endif %}
+}

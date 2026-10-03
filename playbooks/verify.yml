@@ -1,0 +1,23 @@
+---
+# Checks that every control of the baseline is really in place.
+# Used by Molecule, by the lab end-to-end test and by the CI virtual machine test.
+- name: Verify the server baseline
+  hosts: baseline
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Verify each role
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+        tasks_from: verify.yml
+      loop:
+        - common
+        - kernel_hardening
+        - ssh_hardening
+        - firewall
+        - fail2ban
+        - auto_updates
+        - auditd
+        - node_exporter
+        - lynis

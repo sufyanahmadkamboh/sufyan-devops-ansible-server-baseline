@@ -1,0 +1,46 @@
+---
+# Administrators: the only people who can log in (SSH keys only). Example:
+#   common_admin_users:
+#     - name: ops
+#       pubkeys: ["ssh-ed25519 AAAA... ops@laptop"]
+common_admin_users: []
+
+# Safety net: refuse to harden SSH when nobody would be able to log in afterwards.
+common_require_admin_users: true
+
+# Group that SSH allows (ssh_hardening_allow_groups). Admins are added to it.
+common_ssh_group: ssh-users
+
+# Admins have no password (key-only), so sudo cannot ask for one.
+common_admin_sudo_nopasswd: true
+
+common_packages:
+  - ca-certificates
+  - curl
+  - sudo
+  - dbus
+  - acl
+  - apt-show-versions
+  - debsums
+  - needrestart
+  - libpam-tmpdir
+
+# Legacy clear-text clients and services that have no place on a server.
+common_packages_absent:
+  - telnet
+  - rsh-client
+  - rsh-redone-client
+  - talk
+  - nis
+  - xinetd
+  - inetutils-telnet
+
+common_timezone: Etc/UTC
+
+# New files are readable by owner and group only.
+common_login_umask: "027"
+
+common_banner: |
+  Authorised access only. Activity on this system is logged and monitored.
+
+common_journald_max_use: 500M

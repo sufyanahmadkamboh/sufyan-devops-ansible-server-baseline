@@ -1,0 +1,6 @@
+# Managed by Ansible (role: common). Local edits are reverted on the next run.
+Defaults use_pty
+Defaults logfile="/var/log/sudo.log"
+{% for user in common_admin_users %}
+{{ user.name }} ALL=(ALL:ALL) {{ 'NOPASSWD: ' if common_admin_sudo_nopasswd | bool else '' }}ALL
+{% endfor %}

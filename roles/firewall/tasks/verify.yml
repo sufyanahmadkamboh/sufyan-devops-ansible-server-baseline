@@ -1,0 +1,30 @@
+---
+- name: Read the loaded firewall table
+  ansible.builtin.command: nft list table inet {{ firewall_table }}
+  register: firewall_table_live
+  changed_when: false
+
+- name: Check the default is "drop" and the SSH rule is loaded
+  ansible.builtin.assert:
+    that:
+      - firewall_table_live.stdout is search('hook input priority filter; policy drop;')
+      - firewall_table_live.stdout is search('tcp dport ' ~ firewall_ssh_port ~ ' accept')
+    fail_msg: "{{ firewall_table_live.stdout }}"
+    quiet: true
+
+- name: Check every configured rule is loaded
+  ansible.builtin.assert:
+    that: ('comment "' ~ item.name ~ '"') in firewall_table_live.stdout
+    fail_msg: "Rule {{ item.name }} is not in the loaded table"
+    quiet: true
+  loop: "{{ firewall_rules }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Check the firewall starts at boot
+  ansible.builtin.systemd_service:
+    name: server-baseline-firewall.service
+  register: firewall_unit
+  failed_when: >-
+    firewall_unit.status.ActiveState != 'active'
+    or firewall_unit.status.UnitFileState != 'enabled'

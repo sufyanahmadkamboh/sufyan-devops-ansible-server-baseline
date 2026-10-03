@@ -1,0 +1,67 @@
+---
+- name: Persist kernel settings (applied at every boot)
+  ansible.builtin.template:
+    src: sysctl.conf.j2
+    dest: /etc/sysctl.d/90-server-baseline.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create the module configuration directory (missing on minimal images)
+  ansible.builtin.file:
+    path: /etc/modprobe.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Block loading of unused kernel modules
+  ansible.builtin.template:
+    src: modprobe.conf.j2
+    dest: /etc/modprobe.d/90-server-baseline.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Choose which settings to apply right now
+  ansible.builtin.set_fact:
+    kernel_hardening_runtime: >-
+      {{ (kernel_hardening_sysctl + kernel_hardening_sysctl_extra)
+         | selectattr('key', 'match', kernel_hardening_container_safe_prefixes | map('regex_escape') | join('|'))
+         | list
+         if kernel_hardening_in_container | bool
+         else kernel_hardening_sysctl + kernel_hardening_sysctl_extra }}
+
+# Read first, write only what differs: re-runs report "changed" only when something drifted.
+- name: Read the running kernel values
+  ansible.builtin.command: sysctl -n {{ item.key }}
+  loop: "{{ kernel_hardening_runtime }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: kernel_hardening_current
+  changed_when: false
+  failed_when: kernel_hardening_current.rc != 0 and not (item.optional | default(false))
+  check_mode: false
+
+- name: Apply kernel values that differ
+  ansible.builtin.command: sysctl -w {{ item.item.key }}={{ item.item.value }}
+  loop: "{{ kernel_hardening_current.results }}"
+  loop_control:
+    label: "{{ item.item.key }}={{ item.item.value }} (was {{ item.stdout | default('missing') }})"
+  when:
+    - item.rc == 0
+    - item.stdout | trim != item.item.value | string
+  changed_when: true
+
+# `command` tasks are skipped in --check mode, so drift is reported here instead.
+- name: Report kernel values that differ (check mode)
+  ansible.builtin.debug:
+    msg: "{{ item.item.key }} is {{ item.stdout }}, baseline wants {{ item.item.value }}"
+  loop: "{{ kernel_hardening_current.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when:
+    - ansible_check_mode
+    - item.rc == 0
+    - item.stdout | trim != item.item.value | string
+  changed_when: true

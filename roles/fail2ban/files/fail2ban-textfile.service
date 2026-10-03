@@ -1,0 +1,8 @@
+# Managed by Ansible (role: fail2ban)
+[Unit]
+Description=Export fail2ban counters for node_exporter
+After=fail2ban.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/fail2ban-textfile

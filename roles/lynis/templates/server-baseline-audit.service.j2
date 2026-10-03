@@ -1,0 +1,9 @@
+# Managed by Ansible (role: lynis)
+[Unit]
+Description=Lynis security audit (score exported to Prometheus)
+
+[Service]
+Type=oneshot
+Nice=10
+IOSchedulingClass=idle
+ExecStart=/usr/local/sbin/server-baseline-audit

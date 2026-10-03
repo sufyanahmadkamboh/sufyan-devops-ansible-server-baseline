@@ -1,0 +1,61 @@
+---
+# python3-systemd lets fail2ban read sshd's messages straight from the systemd journal.
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name:
+      - fail2ban
+      - python3-systemd
+      - nftables
+    state: present
+
+- name: Configure the SSH jail
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.d/server-baseline.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Start fail2ban now and at every boot
+  ansible.builtin.systemd_service:
+    name: fail2ban
+    state: started
+    enabled: true
+
+- name: Export fail2ban counters for Prometheus
+  when: fail2ban_textfile_metrics | bool
+  block:
+    - name: Create the textfile collector directory
+      ansible.builtin.file:
+        path: "{{ fail2ban_textfile_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install the metrics script
+      ansible.builtin.template:
+        src: fail2ban-textfile.sh.j2
+        dest: /usr/local/sbin/fail2ban-textfile
+        owner: root
+        group: root
+        mode: "0750"
+
+    - name: Install the metrics service and timer
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: /etc/systemd/system/{{ item }}
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - fail2ban-textfile.service
+        - fail2ban-textfile.timer
+
+    - name: Refresh the metrics every minute
+      ansible.builtin.systemd_service:
+        name: fail2ban-textfile.timer
+        state: started
+        enabled: true
+        daemon_reload: true

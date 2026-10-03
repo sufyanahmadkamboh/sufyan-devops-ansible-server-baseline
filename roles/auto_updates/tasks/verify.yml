@@ -1,0 +1,20 @@
+---
+- name: Read the final apt configuration
+  ansible.builtin.command: apt-config dump
+  register: auto_updates_config
+  changed_when: false
+
+- name: Check automatic security updates are on
+  ansible.builtin.assert:
+    that:
+      - auto_updates_config.stdout is search('APT::Periodic::Update-Package-Lists "1";')
+      - auto_updates_config.stdout is search('APT::Periodic::Unattended-Upgrade "1";')
+      - auto_updates_config.stdout is search('Unattended-Upgrade::Automatic-Reboot "' ~ (auto_updates_reboot | bool | lower) ~ '";')
+    quiet: true
+
+- name: Check the update timers are enabled
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+  loop: [apt-daily.timer, apt-daily-upgrade.timer]
+  register: auto_updates_timer
+  failed_when: auto_updates_timer.status.UnitFileState != 'enabled'

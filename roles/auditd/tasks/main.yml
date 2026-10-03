@@ -1,0 +1,42 @@
+---
+- name: Install auditd
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+
+- name: Rotate audit logs instead of filling the disk
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^\s*{{ item.key }}\s*='
+    line: "{{ item.key }} = {{ item.value }}"
+  loop:
+    - {key: max_log_file, value: "{{ auditd_max_log_file }}"}
+    - {key: num_logs, value: "{{ auditd_num_logs }}"}
+    - {key: max_log_file_action, value: ROTATE}
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Restart auditd
+
+- name: Install the audit rules
+  ansible.builtin.template:
+    src: server-baseline.rules.j2
+    dest: /etc/audit/rules.d/50-server-baseline.rules
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Load audit rules
+
+- name: Start auditd now and at every boot
+  ansible.builtin.systemd_service:
+    name: auditd
+    state: started
+    enabled: true
+  when: auditd_manage_service | bool
+
+- name: Keep auditd stopped inside containers (no kernel audit support)
+  ansible.builtin.systemd_service:
+    name: auditd
+    enabled: false
+  when: not (auditd_manage_service | bool)

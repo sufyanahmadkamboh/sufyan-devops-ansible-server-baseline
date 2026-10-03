@@ -1,0 +1,16 @@
+---
+- name: Check the pinned Lynis version runs
+  ansible.builtin.command: ./lynis show version
+  args:
+    chdir: "{{ lynis_install_dir }}"
+  register: lynis_shown
+  changed_when: false
+  failed_when: lynis_shown.stdout | trim != lynis_version | string
+
+- name: Check the weekly audit is scheduled
+  ansible.builtin.systemd_service:
+    name: server-baseline-audit.timer
+  register: lynis_timer
+  failed_when: >-
+    lynis_timer.status.ActiveState != 'active'
+    or lynis_timer.status.UnitFileState != 'enabled'

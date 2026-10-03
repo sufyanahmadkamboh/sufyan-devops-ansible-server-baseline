@@ -1,0 +1,20 @@
+## Managed by Ansible (role: auditd). Local edits are reverted on the next run.
+## Search the log with: sudo ausearch -k <key>   (for example: sudo ausearch -k identity)
+
+## Changes to important files
+{% for w in auditd_watches %}
+-w {{ w.path }} -p wa -k {{ w.key }}
+{% endfor %}
+
+## Changing the clock, hostname or kernel modules
+-a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -k time-change
+-a always,exit -F arch=b64 -S sethostname,setdomainname -k network
+-a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k modules
+
+## Every command a logged-in person runs as root (for example through sudo)
+-a always,exit -F arch=b64 -S execve -F euid=0 -F auid>=1000 -F auid!=unset -k root-commands
+{% if auditd_immutable | bool %}
+
+## Lock the rules until the next reboot
+-e 2
+{% endif %}

@@ -1,0 +1,45 @@
+# Managed by Ansible (role: ssh_hardening). Local edits are reverted on the next run.
+# Check what sshd really uses with: sudo sshd -T
+
+Port {{ ssh_hardening_port }}
+
+# Who and how: named groups only, SSH keys only, never root.
+AllowGroups {{ ssh_hardening_allow_groups | join(' ') }}
+PermitRootLogin no
+PubkeyAuthentication yes
+AuthenticationMethods publickey
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+HostbasedAuthentication no
+IgnoreRhosts yes
+UsePAM yes
+StrictModes yes
+
+# Brute-force limits (fail2ban adds bans on top).
+MaxAuthTries {{ ssh_hardening_max_auth_tries }}
+MaxSessions {{ ssh_hardening_max_sessions }}
+MaxStartups 10:30:60
+LoginGraceTime {{ ssh_hardening_login_grace_time }}
+ClientAliveInterval {{ ssh_hardening_client_alive_interval }}
+ClientAliveCountMax {{ ssh_hardening_client_alive_count_max }}
+
+# No tunnels or forwarding: a login is a shell, not a network path into the server.
+AllowTcpForwarding no
+AllowAgentForwarding no
+AllowStreamLocalForwarding no
+X11Forwarding no
+PermitTunnel no
+GatewayPorts no
+PermitUserEnvironment no
+Compression no
+TCPKeepAlive no
+
+# Modern cryptography only.
+KexAlgorithms {{ ssh_hardening_kex_algorithms | join(',') }}
+Ciphers {{ ssh_hardening_ciphers | join(',') }}
+MACs {{ ssh_hardening_macs | join(',') }}
+
+# Record key fingerprints of every login; show the legal banner.
+LogLevel VERBOSE
+Banner /etc/issue.net

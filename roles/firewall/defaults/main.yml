@@ -1,0 +1,19 @@
+---
+# Everything not listed here is dropped. Each rule opens one TCP port to some sources.
+firewall_rules:
+  - name: ssh
+    port: 22
+    sources_v4: ["0.0.0.0/0"]
+    sources_v6: ["::/0"]
+
+# The SSH port must always be in firewall_rules (checked before anything is applied).
+firewall_ssh_port: 22
+
+# Servers are not routers: drop forwarded traffic. Set false on Docker/Kubernetes hosts.
+firewall_manage_forward: true
+
+# Log dropped packets (rate limited) as "nft-baseline-drop:" in the kernel log.
+firewall_log_dropped: true
+
+firewall_table: server_baseline
+firewall_rules_file: /etc/nftables.d/server-baseline.nft

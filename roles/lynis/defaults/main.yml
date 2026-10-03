@@ -1,0 +1,16 @@
+---
+# Lynis from the official CISOfy GitHub release tag, pinned and checksum-verified. The
+# distribution packages are older (3.0.x), and one version everywhere keeps scores comparable.
+# (downloads.cisofy.com answers 403 to Ansible's HTTP client, so GitHub is used.)
+lynis_version: 3.1.7
+lynis_checksum: sha256:48d829d0dc2c583a3e838cc09a7190b69a3af844bcb913c7cf9c0226b04b95c5
+lynis_url: https://github.com/CISOfy/lynis/archive/refs/tags/{{ lynis_version }}.tar.gz
+lynis_install_dir: /opt/lynis-{{ lynis_version }}
+
+# Re-audit every week; the score goes to Prometheus so a drop shows up on the dashboard.
+lynis_schedule: weekly
+lynis_textfile_dir: /var/lib/node_exporter/textfile
+
+# Used by playbooks/audit.yml: run an audit now and copy the report to the controller.
+lynis_fetch_dir: "{{ playbook_dir }}/../reports/lynis"
+lynis_label: manual

@@ -1,0 +1,12 @@
+# Lab keys, reports and caches never go to git
+.lab/
+reports/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.retry
+.env
+*.pem
+id_*
+!**/id_*.md

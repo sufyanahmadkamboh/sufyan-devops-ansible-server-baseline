@@ -1,0 +1,122 @@
+---
+- name: Check that this is a supported system
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Debian'
+      - ansible_facts['distribution'] in ['Debian', 'Ubuntu']
+    fail_msg: "This baseline supports Debian and Ubuntu only (found {{ ansible_facts['distribution'] }})."
+    quiet: true
+
+- name: Refuse to continue without an administrator who can log in
+  ansible.builtin.assert:
+    that:
+      - common_admin_users | length > 0
+      - common_admin_users | map(attribute='pubkeys') | map('length') | min > 0
+    fail_msg: >-
+      common_admin_users is empty or has a user without an SSH key. SSH is about to become
+      key-only, so continuing would lock everyone out of this server.
+    quiet: true
+  when: common_require_admin_users | bool
+
+- name: Refresh the package index
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Remove insecure legacy packages
+  ansible.builtin.apt:
+    name: "{{ common_packages_absent }}"
+    state: absent
+    purge: true
+
+- name: Start the system message bus (used by node_exporter to read service states)
+  ansible.builtin.systemd_service:
+    name: dbus
+    state: started
+
+- name: Set the timezone
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Create the group allowed to use SSH
+  ansible.builtin.group:
+    name: "{{ common_ssh_group }}"
+    state: present
+
+- name: Create administrator accounts
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+    groups: "{{ common_ssh_group }}"
+    append: true
+    create_home: true
+  loop: "{{ common_admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install administrator SSH keys (any other key is removed)
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.pubkeys | join('\n') }}"
+    exclusive: true
+  loop: "{{ common_admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Allow administrators to use sudo
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/90-server-baseline
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Set the login banners
+  ansible.builtin.copy:
+    content: "{{ common_banner }}"
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - /etc/issue
+    - /etc/issue.net
+
+- name: Use a restrictive default umask
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^\s*UMASK\s'
+    line: "UMASK\t\t{{ common_login_umask }}"
+
+- name: Disable core dumps for all users (they can contain passwords and keys)
+  ansible.builtin.copy:
+    content: |
+      # Managed by Ansible (role: common)
+      * hard core 0
+    dest: /etc/security/limits.d/90-server-baseline.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create the journald drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Keep system logs across reboots
+  ansible.builtin.template:
+    src: journald.conf.j2
+    dest: /etc/systemd/journald.conf.d/90-server-baseline.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart journald

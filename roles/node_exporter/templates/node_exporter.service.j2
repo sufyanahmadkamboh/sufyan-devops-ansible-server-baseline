@@ -1,0 +1,40 @@
+# Managed by Ansible (role: node_exporter)
+[Unit]
+Description=Prometheus node_exporter {{ node_exporter_version }}
+Documentation=https://github.com/prometheus/node_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+ExecStart=/usr/local/bin/node_exporter \
+  --web.listen-address={{ node_exporter_listen }} \
+  --collector.textfile.directory={{ node_exporter_textfile_dir }} \
+  --collector.systemd \
+  --collector.systemd.unit-include='{{ node_exporter_systemd_units | join('|') }}'
+Restart=on-failure
+RestartSec=5
+
+# The exporter only reads: lock down everything else.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

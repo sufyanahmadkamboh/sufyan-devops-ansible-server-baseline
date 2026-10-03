@@ -1,0 +1,12 @@
+# Managed by Ansible (role: lynis)
+[Unit]
+Description=Run the Lynis security audit {{ lynis_schedule }}
+
+[Timer]
+OnCalendar={{ lynis_schedule }}
+RandomizedDelaySec=1h
+# Run at the next boot if the server was off at the scheduled time.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

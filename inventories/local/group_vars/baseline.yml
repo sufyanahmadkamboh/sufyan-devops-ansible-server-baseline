@@ -1,0 +1,19 @@
+---
+# CI runner VM. The admin key is generated per run by scripts/vm-test.sh and never stored.
+common_admin_users:
+  - name: ops
+    pubkeys:
+      - "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'BASELINE_ADMIN_PUBKEY_FILE')) }}"
+
+# The runner also hosts Docker containers, which need forwarded traffic.
+firewall_manage_forward: false
+
+firewall_rules:
+  - name: ssh
+    port: 22
+    sources_v4: ["0.0.0.0/0"]
+    sources_v6: ["::/0"]
+  - name: node-exporter
+    port: 9100
+    sources_v4: ["127.0.0.1/32"]
+    sources_v6: []

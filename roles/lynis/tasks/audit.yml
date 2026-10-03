@@ -1,0 +1,20 @@
+---
+# Run a Lynis audit now and copy the report to the controller as <host>-<label>.dat.
+- name: Run the Lynis audit (takes about a minute)
+  ansible.builtin.command: /usr/local/sbin/server-baseline-audit
+  changed_when: false
+
+- name: Read the hardening index
+  ansible.builtin.command: grep -m1 '^hardening_index=' /var/log/lynis-report.dat
+  register: lynis_index
+  changed_when: false
+
+- name: Copy the report to the controller
+  ansible.builtin.fetch:
+    src: /var/log/lynis-report.dat
+    dest: "{{ lynis_fetch_dir }}/{{ inventory_hostname }}-{{ lynis_label }}.dat"
+    flat: true
+
+- name: Show the score
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} ({{ lynis_label }}): Lynis {{ lynis_index.stdout }}"

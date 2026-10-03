@@ -1,0 +1,41 @@
+---
+# Turns a fresh Debian/Ubuntu server into the hardened, monitored baseline.
+# Safe to run again at any time: a second run changes nothing (see scripts/drift-check.sh).
+- name: Apply the server baseline
+  hosts: baseline
+  become: true
+  # One server at a time: a mistake stops after the first server instead of all of them.
+  serial: "{{ baseline_serial | default(1) }}"
+  max_fail_percentage: 0
+
+  roles:
+    - role: common
+      tags: [common]
+    - role: kernel_hardening
+      tags: [kernel]
+    - role: ssh_hardening
+      tags: [ssh]
+    - role: firewall
+      tags: [firewall]
+    - role: fail2ban
+      tags: [fail2ban]
+    - role: auto_updates
+      tags: [updates]
+    - role: auditd
+      tags: [auditd]
+    - role: node_exporter
+      tags: [monitoring]
+    - role: lynis
+      tags: [lynis]
+
+  post_tasks:
+    - name: Apply pending service changes before checking access
+      ansible.builtin.meta: flush_handlers
+
+    # A new connection proves that SSH and the firewall still let the admin in.
+    - name: Open a fresh connection to prove the server is still reachable
+      ansible.builtin.meta: reset_connection
+
+    - name: Wait for the new connection
+      ansible.builtin.wait_for_connection:
+        timeout: 60

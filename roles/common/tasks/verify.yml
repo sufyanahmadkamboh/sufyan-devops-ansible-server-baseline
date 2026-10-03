@@ -1,0 +1,38 @@
+---
+- name: Read user accounts
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Read groups
+  ansible.builtin.getent:
+    database: group
+
+- name: Check administrators exist and may use SSH
+  ansible.builtin.assert:
+    that:
+      - item.name in ansible_facts['getent_passwd']
+      - item.name in ansible_facts['getent_group'][common_ssh_group][2].split(',')
+    fail_msg: "{{ item.name }} is missing or not in {{ common_ssh_group }}"
+    quiet: true
+  loop: "{{ common_admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Check the sudoers file is valid
+  ansible.builtin.command: visudo -cf /etc/sudoers.d/90-server-baseline
+  changed_when: false
+
+- name: Read login defaults
+  ansible.builtin.slurp:
+    src: /etc/login.defs
+  register: common_login_defs
+
+- name: Read installed packages
+  ansible.builtin.package_facts:
+
+- name: Check the default umask and that legacy clients are gone
+  ansible.builtin.assert:
+    that:
+      - (common_login_defs.content | b64decode) is search('(?m)^UMASK\s+' ~ common_login_umask ~ '$')
+      - common_packages_absent | select('in', ansible_facts['packages']) | list | length == 0
+    quiet: true

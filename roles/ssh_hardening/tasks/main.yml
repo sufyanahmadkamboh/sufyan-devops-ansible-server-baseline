@@ -1,0 +1,93 @@
+---
+- name: Install the SSH server
+  ansible.builtin.apt:
+    name: openssh-server
+    state: present
+
+- name: Read the group database
+  ansible.builtin.getent:
+    database: group
+
+- name: Refuse to restrict SSH to groups that have no members
+  ansible.builtin.assert:
+    that:
+      - ssh_hardening_allow_groups | select('in', ansible_facts['getent_group'])
+        | map('extract', ansible_facts['getent_group']) | map(attribute=2)
+        | select | list | length > 0
+    fail_msg: >-
+      None of {{ ssh_hardening_allow_groups }} has members. Applying this would lock every
+      user out of SSH. Add an administrator (common_admin_users) first.
+    quiet: true
+
+- name: Make sure sshd reads the drop-in directory first
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    line: Include /etc/ssh/sshd_config.d/*.conf
+    insertbefore: BOF
+    validate: /usr/sbin/sshd -t -f %s
+
+- name: Create the privilege separation directory (needed to validate the config)
+  ansible.builtin.file:
+    path: /run/sshd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# 00- sorts first, and for sshd the first value it reads wins, so these settings
+# cannot be overridden by other drop-ins such as cloud-init's 50-cloud-init.conf.
+- name: Install the hardened SSH settings
+  ansible.builtin.template:
+    src: sshd-baseline.conf.j2
+    dest: /etc/ssh/sshd_config.d/00-server-baseline.conf
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd
+
+- name: Count weak Diffie-Hellman groups
+  ansible.builtin.shell: >-
+    set -o pipefail;
+    awk '$5 < {{ ssh_hardening_moduli_min_bits }} && $1 !~ /^#/' /etc/ssh/moduli | wc -l
+  args:
+    executable: /bin/bash
+  register: ssh_hardening_weak_moduli
+  changed_when: false
+  check_mode: false
+
+- name: Remove weak Diffie-Hellman groups
+  ansible.builtin.shell: >-
+    awk '$5 >= {{ ssh_hardening_moduli_min_bits }} || $1 ~ /^#/' /etc/ssh/moduli > /etc/ssh/moduli.baseline
+    && mv /etc/ssh/moduli.baseline /etc/ssh/moduli
+  when: ssh_hardening_weak_moduli.stdout | int > 0
+  changed_when: true
+  notify: Reload sshd
+
+- name: Check whether sshd is socket-activated
+  ansible.builtin.stat:
+    path: /etc/systemd/system/sockets.target.wants/ssh.socket
+  register: ssh_hardening_socket
+
+- name: Switch from socket activation to an always-running sshd
+  when:
+    - ssh_hardening_disable_socket_activation | bool
+    - ssh_hardening_socket.stat.exists
+  block:
+    - name: Stop and disable ssh.socket
+      ansible.builtin.systemd_service:
+        name: ssh.socket
+        state: stopped
+        enabled: false
+
+    - name: Restart ssh.service on its own listener
+      ansible.builtin.systemd_service:
+        name: ssh.service
+        state: restarted
+        enabled: true
+
+- name: Start sshd at boot
+  ansible.builtin.systemd_service:
+    name: ssh.service
+    state: started
+    enabled: true

@@ -1,0 +1,71 @@
+---
+- name: Create the Lynis directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ lynis_install_dir }}"
+    - /usr/local/lib/server-baseline
+    - "{{ lynis_textfile_dir }}"
+
+- name: Download Lynis (checksum verified)
+  ansible.builtin.get_url:
+    url: "{{ lynis_url }}"
+    dest: "{{ lynis_install_dir }}.tar.gz"
+    checksum: "{{ lynis_checksum }}"
+    owner: root
+    group: root
+    mode: "0644"
+  register: lynis_archive
+  until: lynis_archive is succeeded
+  retries: 3
+  delay: 5
+
+# Lynis refuses to run when its files belong to another user, so everything is owned by root.
+- name: Unpack Lynis
+  ansible.builtin.unarchive:
+    src: "{{ lynis_install_dir }}.tar.gz"
+    dest: "{{ lynis_install_dir }}"
+    remote_src: true
+    owner: root
+    group: root
+    extra_opts: [--strip-components=1]
+    creates: "{{ lynis_install_dir }}/lynis"
+  when: not (ansible_check_mode and lynis_archive is changed)
+
+- name: Install the report converter
+  ansible.builtin.copy:
+    src: lynis_report.py
+    dest: /usr/local/lib/server-baseline/lynis_report.py
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install the audit command
+  ansible.builtin.template:
+    src: server-baseline-audit.sh.j2
+    dest: /usr/local/sbin/server-baseline-audit
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Install the audit service and timer
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - server-baseline-audit.service
+    - server-baseline-audit.timer
+
+- name: Run the audit on schedule
+  ansible.builtin.systemd_service:
+    name: server-baseline-audit.timer
+    state: started
+    enabled: true
+    daemon_reload: true

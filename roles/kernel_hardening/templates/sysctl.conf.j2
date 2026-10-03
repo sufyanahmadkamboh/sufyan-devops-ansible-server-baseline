@@ -1,0 +1,5 @@
+# Managed by Ansible (role: kernel_hardening). Local edits are reverted on the next run.
+# A leading "-" tells sysctl to skip a setting this kernel does not have.
+{% for s in kernel_hardening_sysctl + kernel_hardening_sysctl_extra %}
+{{ '-' if s.optional | default(false) else '' }}{{ s.key }} = {{ s.value }}
+{% endfor %}

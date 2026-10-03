@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  role_name: ssh_hardening
+  namespace: sufyanahmad
+  author: Sufyan Ahmad
+  description: Key-only SSH for named groups, no root login, modern cryptography
+  license: MIT
+  min_ansible_version: "2.17"
+  platforms:
+    - name: Ubuntu
+      versions: [noble]
+    - name: Debian
+      versions: [bookworm, trixie]
+dependencies: []

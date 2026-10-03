@@ -1,0 +1,28 @@
+---
+- name: Check the audit rules file is installed
+  ansible.builtin.stat:
+    path: /etc/audit/rules.d/50-server-baseline.rules
+  register: auditd_rules_file
+  failed_when: not auditd_rules_file.stat.exists
+
+- name: Check the rules are loaded in the kernel
+  when: auditd_manage_service | bool
+  block:
+    - name: List the loaded audit rules
+      ansible.builtin.command: auditctl -l
+      register: auditd_loaded
+      changed_when: false
+
+    - name: Check every watched file is in the kernel's list
+      ansible.builtin.assert:
+        that: ('-w ' ~ item.path | regex_replace('/$', '')) in auditd_loaded.stdout
+        fail_msg: "No loaded rule for {{ item.path }}"
+        quiet: true
+      loop: "{{ auditd_watches }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+- name: Note that kernel auditing cannot run here
+  ansible.builtin.debug:
+    msg: "Container: audit rules installed but not loaded (the kernel audit system belongs to the host)."
+  when: not (auditd_manage_service | bool)

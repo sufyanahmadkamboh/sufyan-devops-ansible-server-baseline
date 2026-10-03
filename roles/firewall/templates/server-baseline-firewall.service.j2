@@ -1,0 +1,18 @@
+# Managed by Ansible (role: firewall)
+[Unit]
+Description=Server baseline firewall (nftables table {{ firewall_table }})
+Wants=network-pre.target
+Before=network-pre.target
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f {{ firewall_rules_file }}
+ExecReload=/usr/sbin/nft -f {{ firewall_rules_file }}
+ExecStop=/usr/sbin/nft delete table inet {{ firewall_table }}
+
+[Install]
+WantedBy=sysinit.target

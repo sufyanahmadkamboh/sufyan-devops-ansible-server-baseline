@@ -1,0 +1,65 @@
+---
+# Kernel settings. `optional: true` means "skip quietly if this kernel does not have it".
+# Not set on purpose: net.ipv4.ip_forward (Docker and Kubernetes hosts need forwarding).
+kernel_hardening_sysctl:
+  # Network: ignore tricks that redirect or spoof traffic
+  - {key: net.ipv4.conf.all.rp_filter, value: 1}
+  - {key: net.ipv4.conf.default.rp_filter, value: 1}
+  - {key: net.ipv4.conf.all.accept_redirects, value: 0}
+  - {key: net.ipv4.conf.default.accept_redirects, value: 0}
+  - {key: net.ipv4.conf.all.secure_redirects, value: 0}
+  - {key: net.ipv4.conf.default.secure_redirects, value: 0}
+  - {key: net.ipv4.conf.all.send_redirects, value: 0}
+  - {key: net.ipv4.conf.default.send_redirects, value: 0}
+  - {key: net.ipv4.conf.all.accept_source_route, value: 0}
+  - {key: net.ipv4.conf.default.accept_source_route, value: 0}
+  - {key: net.ipv4.conf.all.log_martians, value: 1}
+  - {key: net.ipv4.conf.default.log_martians, value: 1}
+  - {key: net.ipv4.icmp_echo_ignore_broadcasts, value: 1}
+  - {key: net.ipv4.icmp_ignore_bogus_error_responses, value: 1}
+  - {key: net.ipv4.tcp_syncookies, value: 1}
+  - {key: net.ipv6.conf.all.accept_redirects, value: 0, optional: true}
+  - {key: net.ipv6.conf.default.accept_redirects, value: 0, optional: true}
+  - {key: net.ipv6.conf.all.accept_source_route, value: 0, optional: true}
+  - {key: net.ipv6.conf.default.accept_source_route, value: 0, optional: true}
+  # Kernel: hide addresses and logs that help exploits, restrict debugging
+  - {key: kernel.kptr_restrict, value: 2}
+  - {key: kernel.dmesg_restrict, value: 1}
+  - {key: kernel.randomize_va_space, value: 2}
+  - {key: kernel.sysrq, value: 0}
+  - {key: kernel.core_uses_pid, value: 1}
+  - {key: kernel.perf_event_paranoid, value: 3}
+  - {key: kernel.yama.ptrace_scope, value: 1, optional: true}
+  - {key: kernel.unprivileged_bpf_disabled, value: 1, optional: true}
+  - {key: net.core.bpf_jit_harden, value: 2, optional: true}
+  - {key: dev.tty.ldisc_autoload, value: 0, optional: true}
+  # Files: no core dumps of privileged programs, safer links in shared folders
+  - {key: fs.suid_dumpable, value: 0}
+  - {key: fs.protected_hardlinks, value: 1}
+  - {key: fs.protected_symlinks, value: 1}
+  - {key: fs.protected_fifos, value: 2}
+  - {key: fs.protected_regular, value: 2}
+
+# Extra settings for a specific inventory, same format.
+kernel_hardening_sysctl_extra: []
+
+# Inside a container most kernel settings belong to the HOST. Changing them would change the
+# host for every container, so there we only apply the per-container network settings.
+kernel_hardening_in_container: >-
+  {{ ansible_facts['virtualization_role'] == 'guest'
+     and ansible_facts['virtualization_type'] in ['docker', 'podman', 'container', 'containerd', 'lxc'] }}
+kernel_hardening_container_safe_prefixes:
+  - net.ipv4.
+  - net.ipv6.
+
+# Rare filesystems and network protocols that are a common source of kernel bugs.
+kernel_hardening_disabled_modules:
+  - cramfs
+  - freevxfs
+  - hfs
+  - hfsplus
+  - jffs2
+  - dccp
+  - sctp
+  - rds
+  - tipc

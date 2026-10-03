@@ -1,0 +1,33 @@
+---
+- name: Work out which settings must be live on this machine
+  ansible.builtin.set_fact:
+    kernel_hardening_expected: >-
+      {{ (kernel_hardening_sysctl + kernel_hardening_sysctl_extra)
+         | selectattr('key', 'match', kernel_hardening_container_safe_prefixes | map('regex_escape') | join('|'))
+         | list
+         if kernel_hardening_in_container | bool
+         else kernel_hardening_sysctl + kernel_hardening_sysctl_extra }}
+
+- name: Read the running kernel values
+  ansible.builtin.command: sysctl -n {{ item.key }}
+  loop: "{{ kernel_hardening_expected }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: kernel_hardening_live
+  changed_when: false
+  failed_when: kernel_hardening_live.rc != 0 and not (item.optional | default(false))
+
+- name: Check every kernel setting has the baseline value
+  ansible.builtin.assert:
+    that: item.rc != 0 or item.stdout | trim == item.item.value | string
+    fail_msg: "{{ item.item.key }} = {{ item.stdout }}, expected {{ item.item.value }}"
+    quiet: true
+  loop: "{{ kernel_hardening_live.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+
+- name: Report how many settings were checked live
+  ansible.builtin.debug:
+    msg: >-
+      {{ kernel_hardening_live.results | selectattr('rc', 'equalto', 0) | list | length }} kernel settings checked live
+      ({{ 'container: per-container network settings only' if kernel_hardening_in_container | bool else 'whole machine' }})

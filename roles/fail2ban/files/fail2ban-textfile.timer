@@ -1,0 +1,11 @@
+# Managed by Ansible (role: fail2ban)
+[Unit]
+Description=Export fail2ban counters every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

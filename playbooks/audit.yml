@@ -1,0 +1,16 @@
+---
+# Runs a Lynis audit now and copies each report to reports/lynis/<host>-<label>.dat.
+#   ansible-playbook playbooks/audit.yml -e lynis_label=before
+- name: Audit with Lynis
+  hosts: baseline
+  become: true
+
+  tasks:
+    - name: Install Lynis (if this server has no baseline yet)
+      ansible.builtin.include_role:
+        name: lynis
+
+    - name: Run the audit and fetch the report
+      ansible.builtin.include_role:
+        name: lynis
+        tasks_from: audit.yml

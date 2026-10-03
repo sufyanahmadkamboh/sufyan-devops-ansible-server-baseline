@@ -1,0 +1,29 @@
+---
+# Connection: the bootstrap user that "cloud-init" (scripts/lab-up.sh) created with our key.
+ansible_user: ops
+ansible_ssh_private_key_file: /keys/id_ed25519
+
+# Who may log in: the same key Ansible uses. The baseline refuses to lock SSH down without one.
+common_admin_users:
+  - name: ops
+    pubkeys:
+      - "{{ lookup('ansible.builtin.file', '/keys/id_ed25519.pub') }}"
+
+# Lab network layout (lab/compose.yaml).
+lab_controller_ip: 172.30.0.5
+lab_prometheus_ip: 172.30.0.10
+
+# The controller can never be banned by fail2ban, so a typo in a test cannot lock Ansible out.
+fail2ban_ignoreip_extra:
+  - "{{ lab_controller_ip }}"
+
+# Port 22 for everyone (fail2ban protects it); metrics port only for Prometheus.
+firewall_rules:
+  - name: ssh
+    port: 22
+    sources_v4: ["0.0.0.0/0"]
+    sources_v6: ["::/0"]
+  - name: node-exporter
+    port: 9100
+    sources_v4: ["{{ lab_prometheus_ip }}/32"]
+    sources_v6: []
