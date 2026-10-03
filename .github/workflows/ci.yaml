@@ -1,0 +1,113 @@
+---
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  PROMETHEUS_IMAGE: prom/prometheus:v3.15.0
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install tools (pinned)
+        run: |
+          pip install -r requirements.txt
+          ansible-galaxy collection install -r requirements.yml
+      - name: yamllint, ansible-lint, syntax, ShellCheck, unit tests
+        run: scripts/lint.sh
+      - name: Prometheus rules and their unit tests
+        run: |
+          docker run --rm -v "$PWD:/w" -w /w --entrypoint promtool "$PROMETHEUS_IMAGE" check config lab/prometheus/prometheus.yml
+          docker run --rm -v "$PWD:/w" -w /w/tests/prometheus --entrypoint promtool "$PROMETHEUS_IMAGE" test rules server-baseline.test.yml
+      - name: Lab compose file
+        run: |
+          mkdir -p .lab && echo ci-placeholder > .lab/grafana-admin-password
+          docker compose -f lab/compose.yaml config --quiet
+      - name: Grafana dashboard is valid JSON
+        run: python3 -m json.tool lab/grafana/dashboards/server-baseline.json > /dev/null
+
+  molecule:
+    name: Molecule (Ubuntu 24.04, Debian 12, Debian 13)
+    needs: static
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install tools (pinned)
+        run: |
+          pip install -r requirements.txt
+          ansible-galaxy collection install -r requirements.yml
+      - name: create, converge, idempotence, verify, destroy
+        env:
+          ANSIBLE_CONFIG: ${{ github.workspace }}/ansible.cfg
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+        run: molecule test
+
+  lab-e2e:
+    name: Lab end-to-end (real SSH, attacks, drift, monitoring)
+    needs: static
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run the end-to-end test
+        run: scripts/e2e.sh
+      - name: Results
+        if: always()
+        run: test -f reports/e2e-results.md && cat reports/e2e-results.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-e2e-reports
+          path: reports/
+          if-no-files-found: ignore
+      - name: Remove the lab
+        if: always()
+        run: scripts/lab-down.sh
+
+  vm:
+    name: Real VM (auditd and kernel settings on the runner)
+    needs: static
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install tools (pinned)
+        run: |
+          pip install -r requirements.txt
+          ansible-galaxy collection install -r requirements.yml
+      - name: Harden this runner and test it
+        run: scripts/vm-test.sh
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-reports
+          path: reports/
+          if-no-files-found: ignore
