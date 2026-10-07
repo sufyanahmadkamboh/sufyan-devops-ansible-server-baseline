@@ -1,0 +1,13 @@
+0:00 The question
+1:30 The problem
+2:22 The idea
+3:05 Architecture
+3:53 The playbook
+4:37 The roles
+8:13 Safety nets
+9:37 Measured results
+12:33 Monitoring
+13:27 Testing
+15:27 Run it yourself
+17:01 Production rollout
+17:39 Limits

@@ -10,3 +10,6 @@ __pycache__/
 *.pem
 id_*
 !**/id_*.md
+
+# Video build output
+video/out/

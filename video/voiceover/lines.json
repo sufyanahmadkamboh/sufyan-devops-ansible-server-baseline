@@ -1,0 +1,772 @@
+[
+ {
+  "id": "s00_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "You install a fresh Ubuntu or Debian server. Out of the box, it accepts password logins, and it lets root log in with a key.",
+  "tts": "You install a fresh Ubuntu or Debian server. Out of the box, it accepts password logins, and it lets root log in with a key."
+ },
+ {
+  "id": "s00_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Bots start guessing SSH passwords on internet facing servers within minutes of them coming online.",
+  "tts": "Bots start guessing S-S-H passwords on internet facing servers within minutes of them coming online."
+ },
+ {
+  "id": "s00_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And when teams harden servers by hand from a checklist, every server ends up a little different, and nobody notices when someone quietly switches password login back on.",
+  "tts": "And when teams harden servers by hand from a checklist, every server ends up a little different, and nobody notices when someone quietly switches password login back on."
+ },
+ {
+  "id": "s00_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "In this video I will show you a project that fixes all of that with one Ansible command: the same security baseline on every server, with monitoring and an audit score.",
+  "tts": "In this video I will show you a project that fixes all of that with one Ansible command: the same security baseline on every server, with monitoring and an audit score."
+ },
+ {
+  "id": "s00_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And everything is measured. The Lynis hardening score goes from 61 to 77, password logins are rejected, and a brute force attacker is banned in seven seconds. The code and a free study guide are linked in the description.",
+  "tts": "And everything is measured. The Lie-nis hardening score goes from 61 to 77, password logins are rejected, and a brute force attacker is banned in seven seconds. The code and a free study guide are linked in the description."
+ },
+ {
+  "id": "s01_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Here is the plan. First, why a fresh server is not safe, and the idea behind the fix.",
+  "tts": "Here is the plan. First, why a fresh server is not safe, and the idea behind the fix."
+ },
+ {
+  "id": "s01_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then the architecture, and the lab: a controller, two servers and an attacker, all in Docker.",
+  "tts": "Then the architecture, and the lab: a controller, two servers and an attacker, all in Docker."
+ },
+ {
+  "id": "s01_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then the roles, one by one: SSH, the firewall, fail2ban, the kernel, automatic updates and the audit trail.",
+  "tts": "Then the roles, one by one: S-S-H, the firewall, fail-to-ban, the kernel, automatic updates and the audit trail."
+ },
+ {
+  "id": "s01_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Next, the safety nets that make sure the automation can never lock you out, and the monitoring with Prometheus, Grafana and Lynis.",
+  "tts": "Next, the safety nets that make sure the automation can never lock you out, and the monitoring with Prometheus, Grafana and Lie-nis."
+ },
+ {
+  "id": "s01_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And finally the tests that prove it on every push, how to run the whole lab on your own laptop, and how to roll it out to real servers.",
+  "tts": "And finally the tests that prove it on every push, how to run the whole lab on your own laptop, and how to roll it out to real servers."
+ },
+ {
+  "id": "s02_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Let us start with the problem. Debian and Ubuntu install OpenSSH with password logins switched on, and they allow root to log in with a key.",
+  "tts": "Let us start with the problem. Debian and Ubuntu install Open S-S-H with password logins switched on, and they allow root to log in with a key."
+ },
+ {
+  "id": "s02_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The firewall is open, so every port a service opens is reachable. And nothing records who changed what.",
+  "tts": "The firewall is open, so every port a service opens is reachable. And nothing records who changed what."
+ },
+ {
+  "id": "s02_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Hardening is usually done by hand, from a checklist. So ten servers hardened by hand become ten slightly different servers.",
+  "tts": "Hardening is usually done by hand, from a checklist. So ten servers hardened by hand become ten slightly different servers."
+ },
+ {
+  "id": "s02_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then drift sets in. Someone temporarily switches password login back on to debug something, and it stays that way forever.",
+  "tts": "Then drift sets in. Someone temporarily switches password login back on to debug something, and it stays that way forever."
+ },
+ {
+  "id": "s02_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And hardening itself is risky. One typo in the SSH config or one wrong firewall rule, and you have cut off the only way into the server.",
+  "tts": "And hardening itself is risky. One typo in the S-S-H config or one wrong firewall rule, and you have cut off the only way into the server."
+ },
+ {
+  "id": "s02_05",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Finally, if someone asks: is this server secure? Without an audit score, there is no number to show, and no way to catch a regression.",
+  "tts": "Finally, if someone asks: is this server secure? Without an audit score, there is no number to show, and no way to catch a regression."
+ },
+ {
+  "id": "s03_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Here is the idea: write the security baseline as code, with Ansible, and apply it to any number of servers with one command.",
+  "tts": "Here is the idea: write the security baseline as code, with Ansible, and apply it to any number of servers with one command."
+ },
+ {
+  "id": "s03_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Every change must be safe. Risky files are validated by the program that will read them before they are written, and guards stop the run before anything could lock you out.",
+  "tts": "Every change must be safe. Risky files are validated by the program that will read them before they are written, and guards stop the run before anything could lock you out."
+ },
+ {
+  "id": "s03_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The playbook is idempotent: running it again changes nothing. That gives you two things for free. In check mode, a re-run is a drift report. In normal mode, it is the repair.",
+  "tts": "The playbook is idempotent: running it again changes nothing. That gives you two things for free. In check mode, a re-run is a drift report. In normal mode, it is the repair."
+ },
+ {
+  "id": "s03_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The result is measured with Lynis, an open source audit tool, before and after, and then every week.",
+  "tts": "The result is measured with Lie-nis, an open source audit tool, before and after, and then every week."
+ },
+ {
+  "id": "s03_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the protections themselves are monitored, with alerts, and proven by tests that attack the servers on every push.",
+  "tts": "And the protections themselves are monitored, with alerts, and proven by tests that attack the servers on every push."
+ },
+ {
+  "id": "s04_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Here is the architecture. You run one command, make harden, or the Ansible playbook directly.",
+  "tts": "Here is the architecture. You run one command, make harden, or the Ansible playbook directly."
+ },
+ {
+  "id": "s04_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "A controller container runs Ansible, and connects to the servers over SSH, with a key. In the lab there are two servers: web-01 on Ubuntu 24.04 and db-01 on Debian 12.",
+  "tts": "A controller container runs Ansible, and connects to the servers over S-S-H, with a key. In the lab there are two servers: web zero one on Ubuntu twenty-four oh-four and D-B zero one on Debian 12."
+ },
+ {
+  "id": "s04_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "An attacker container sits on the same network. The tests use it for SSH brute force and port probes.",
+  "tts": "An attacker container sits on the same network. The tests use it for S-S-H brute force and port probes."
+ },
+ {
+  "id": "s04_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Prometheus scrapes every server's node exporter on port 9100 every fifteen seconds, and evaluates nine alert rules. Grafana shows it all on one dashboard.",
+  "tts": "Prometheus scrapes every server's node exporter on port 9100 every fifteen seconds, and evaluates nine alert rules. Grafana shows it all on one dashboard."
+ },
+ {
+  "id": "s04_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "After the run, every server has the same set of protections: hardened SSH, an nftables firewall, fail2ban, automatic updates, kernel settings, an audit trail, metrics, and a weekly Lynis audit.",
+  "tts": "After the run, every server has the same set of protections: hardened S-S-H, an N-F-tables firewall, fail-to-ban, automatic updates, kernel settings, an audit trail, metrics, and a weekly Lie-nis audit."
+ },
+ {
+  "id": "s05_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Ansible is an agentless configuration tool. It connects over SSH, and its modules only change what differs from the desired state. This is the main playbook.",
+  "tts": "Ansible is an agentless configuration tool. It connects over S-S-H, and its modules only change what differs from the desired state. This is the main playbook."
+ },
+ {
+  "id": "s05_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Serial one means one server at a time, and max fail percentage zero means the first failure stops the rollout. A mistake hits one server, not the whole fleet.",
+  "tts": "Serial one means one server at a time, and max fail percentage zero means the first failure stops the rollout. A mistake hits one server, not the whole fleet."
+ },
+ {
+  "id": "s05_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then nine roles, in a fixed order. Each security control is its own role, with its own defaults, templates, and its own verify tasks.",
+  "tts": "Then nine roles, in a fixed order. Each security control is its own role, with its own defaults, templates, and its own verify tasks."
+ },
+ {
+  "id": "s05_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "At the end, it applies pending service changes, throws away the existing SSH connection, and opens a brand new one. If the new SSH or firewall settings had locked us out, the run fails right here.",
+  "tts": "At the end, it applies pending service changes, throws away the existing S-S-H connection, and opens a brand new one. If the new S-S-H or firewall settings had locked us out, the run fails right here."
+ },
+ {
+  "id": "s06_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role one, common, creates the administrators. They log in with SSH keys only, and any other keys are removed. It also sets up sudo, login banners, a strict umask, no core dumps, and a persistent journal.",
+  "tts": "Role one, common, creates the administrators. They log in with S-S-H keys only, and any other keys are removed. It also sets up sudo, login banners, a strict you-mask, no core dumps, and a persistent journal."
+ },
+ {
+  "id": "s06_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "This role has the first safety net. If no administrator with an SSH key is defined, the run stops right there, before SSH is touched.",
+  "tts": "This role has the first safety net. If no administrator with an S-S-H key is defined, the run stops right there, before S-S-H is touched."
+ },
+ {
+  "id": "s06_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role two hardens the kernel: 34 sysctl settings, for example ignoring ICMP redirects, persisted to a file and applied live. And nine rarely used kernel modules are blocked.",
+  "tts": "Role two hardens the kernel: 34 sys-control settings, for example ignoring I-C-M-P redirects, persisted to a file and applied live. And nine rarely used kernel modules are blocked."
+ },
+ {
+  "id": "s06_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "One design detail: the role reads the running values first, and writes only the ones that differ. So when this role reports changed, it really means something drifted.",
+  "tts": "One design detail: the role reads the running values first, and writes only the ones that differ. So when this role reports changed, it really means something drifted."
+ },
+ {
+  "id": "s07_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role three is SSH. Only members of the ssh users group may log in, root may never log in, and the only accepted method is a public key. Password and keyboard interactive logins are off.",
+  "tts": "Role three is S-S-H. Only members of the S-S-H users group may log in, root may never log in, and the only accepted method is a public key. Password and keyboard interactive logins are off."
+ },
+ {
+  "id": "s07_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Tunnels and forwarding are switched off, so a login is a shell, not a network path into the server.",
+  "tts": "Tunnels and forwarding are switched off, so a login is a shell, not a network path into the server."
+ },
+ {
+  "id": "s07_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Only modern key exchange, ciphers and MACs are allowed, weak Diffie Hellman groups are removed, and verbose logging records the key fingerprint of every login.",
+  "tts": "Only modern key exchange, ciphers and Macs are allowed, weak Diffie Hellman groups are removed, and verbose logging records the key fingerprint of every login."
+ },
+ {
+  "id": "s07_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Two details matter. The file is a drop in named zero zero, because sshd uses the first value it reads, so cloud init cannot override it. And validate runs sshd dash t on the new file first. If the check fails, the old config stays in place.",
+  "tts": "Two details matter. The file is a drop in named zero zero, because S-S-H-D uses the first value it reads, so cloud init cannot override it. And validate runs S-S-H-D dash T on the new file first. If the check fails, the old config stays in place."
+ },
+ {
+  "id": "s08_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role four is the firewall, with nftables, the modern Linux firewall. The input chain has a default policy of drop: anything that is not explicitly allowed is dropped.",
+  "tts": "Role four is the firewall, with N-F-tables, the modern Linux firewall. The input chain has a default policy of drop: anything that is not explicitly allowed is dropped."
+ },
+ {
+  "id": "s08_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then one rule per allowed port and source. For example, port 9100, the metrics port, is only open to the Prometheus server.",
+  "tts": "Then one rule per allowed port and source. For example, port 9100, the metrics port, is only open to the Prometheus server."
+ },
+ {
+  "id": "s08_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The project uses its own table, and never flushes the whole rule set. That way the tables of Docker, fail2ban or Kubernetes stay untouched.",
+  "tts": "The project uses its own table, and never flushes the whole rule set. That way the tables of Docker, fail-to-ban or Kubernetes stay untouched."
+ },
+ {
+  "id": "s08_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And again, two safety nets. The new rules are checked with nft dash c before they are loaded. And if the rule list has no rule for SSH, the run stops before the firewall is touched.",
+  "tts": "And again, two safety nets. The new rules are checked with N-F-T dash C before they are loaded. And if the rule list has no rule for S-S-H, the run stops before the firewall is touched."
+ },
+ {
+  "id": "s09_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role five is fail2ban. It reads failed SSH logins from the systemd journal. In aggressive mode it also counts scanners that never even try a key or a password.",
+  "tts": "Role five is fail-to-ban. It reads failed S-S-H logins from the system-D journal. In aggressive mode it also counts scanners that never even try a key or a password."
+ },
+ {
+  "id": "s09_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "After too many failures, the address is banned, in fail2ban's own nftables table, next to the baseline table.",
+  "tts": "After too many failures, the address is banned, in fail-to-ban's own N-F-tables table, next to the baseline table."
+ },
+ {
+  "id": "s09_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Repeat offenders get longer and longer bans, up to one week.",
+  "tts": "Repeat offenders get longer and longer bans, up to one week."
+ },
+ {
+  "id": "s09_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the Ansible controller is on the ignore list, so a ban can never cut off your automation. A small timer also exports the ban counters for Prometheus.",
+  "tts": "And the Ansible controller is on the ignore list, so a ban can never cut off your automation. A small timer also exports the ban counters for Prometheus."
+ },
+ {
+  "id": "s10_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role six turns on daily security updates with unattended upgrades. Reboots are not automatic by default: a reboot should be a decision.",
+  "tts": "Role six turns on daily security updates with unattended upgrades. Reboots are not automatic by default: a reboot should be a decision."
+ },
+ {
+  "id": "s10_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role seven is auditd, the kernel audit trail. It records changes to accounts, sudo, the SSH settings, the firewall, services, the clock and kernel modules, and every command run as root by a logged in user.",
+  "tts": "Role seven is audit-D, the kernel audit trail. It records changes to accounts, sudo, the S-S-H settings, the firewall, services, the clock and kernel modules, and every command run as root by a logged in user."
+ },
+ {
+  "id": "s10_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Role eight installs node exporter, pinned and checksum verified, in a sandboxed systemd unit. It exports the state of every security service, and custom metrics from small text files.",
+  "tts": "Role eight installs node exporter, pinned and checksum verified, in a sandboxed system-D unit. It exports the state of every security service, and custom metrics from small text files."
+ },
+ {
+  "id": "s10_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And role nine installs Lynis 3.1.7, also pinned and checksum verified. A weekly timer runs the audit, and a small Python script turns the report into a Prometheus metric: the hardening index.",
+  "tts": "And role nine installs Lie-nis 3 point 1 point 7, also pinned and checksum verified. A weekly timer runs the audit, and a small Python script turns the report into a Prometheus metric: the hardening index."
+ },
+ {
+  "id": "s11_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Automation that changes SSH and the firewall can lock you out of every server at once. So this project has four safety nets. First, the guards: the run stops if no admin key exists, if the allowed SSH groups are empty, or if the firewall has no SSH rule.",
+  "tts": "Automation that changes S-S-H and the firewall can lock you out of every server at once. So this project has four safety nets. First, the guards: the run stops if no admin key exists, if the allowed S-S-H groups are empty, or if the firewall has no S-S-H rule."
+ },
+ {
+  "id": "s11_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Second, validate before write. Every risky file is checked by the program that will read it: sshd dash t, nft dash c, and visudo. If the check fails, the old file stays in place.",
+  "tts": "Second, validate before write. Every risky file is checked by the program that will read it: S-S-H-D dash T, N-F-T dash C, and vi-sudo. If the check fails, the old file stays in place."
+ },
+ {
+  "id": "s11_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Third, one server at a time. If something goes wrong, it stops after the first server.",
+  "tts": "Third, one server at a time. If something goes wrong, it stops after the first server."
+ },
+ {
+  "id": "s11_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And fourth, the access proof: a brand new SSH connection at the end shows that the admin can still get in.",
+  "tts": "And fourth, the access proof: a brand new S-S-H connection at the end shows that the admin can still get in."
+ },
+ {
+  "id": "s12_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the end to end test makes these mistakes on purpose. Here is a run with an unknown SSH cipher. sshd dash t rejects the file, the task fails, and changed is zero.",
+  "tts": "And the end to end test makes these mistakes on purpose. Here is a run with an unknown S-S-H cipher. S-S-H-D dash T rejects the file, the task fails, and changed is zero."
+ },
+ {
+  "id": "s12_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "An invalid firewall address, three hundred dot one dot one dot one, is rejected by nft dash c, and the old rules stay active.",
+  "tts": "An invalid firewall address, three hundred dot one dot one dot one, is rejected by N-F-T dash C, and the old rules stay active."
+ },
+ {
+  "id": "s12_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And with no administrator defined, the lockout guard stops the run before SSH is touched.",
+  "tts": "And with no administrator defined, the lockout guard stops the run before S-S-H is touched."
+ },
+ {
+  "id": "s12_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "After all three failed runs, the admin can still log in, and a drift check confirms that nothing was changed.",
+  "tts": "After all three failed runs, the admin can still log in, and a drift check confirms that nothing was changed."
+ },
+ {
+  "id": "s13_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "So what does the baseline change? Here are the measured results from the lab, on both servers. Before, with distribution defaults, the servers offered password login, accepted the correct password, and let root log in with a valid key.",
+  "tts": "So what does the baseline change? Here are the measured results from the lab, on both servers. Before, with distribution defaults, the servers offered password login, accepted the correct password, and let root log in with a valid key."
+ },
+ {
+  "id": "s13_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "After the baseline, the only login method offered is public key. The correct password is rejected, root is rejected even with a valid key, and the metrics port is blocked for the attacker.",
+  "tts": "After the baseline, the only login method offered is public key. The correct password is rejected, root is rejected even with a valid key, and the metrics port is blocked for the attacker."
+ },
+ {
+  "id": "s13_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the admin still logs in with a key, and Prometheus still scrapes both servers through the firewall.",
+  "tts": "And the admin still logs in with a key, and Prometheus still scrapes both servers through the firewall."
+ },
+ {
+  "id": "s14_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Lynis gives every server a hardening index. Both lab servers went from 61 to 77, and the same result came from three separate clean runs.",
+  "tts": "Lie-nis gives every server a hardening index. Both lab servers went from 61 to 77, and the same result came from three separate clean runs."
+ },
+ {
+  "id": "s14_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "On web-01, the number of Lynis suggestions dropped from 44 to 26. Many of the remaining ones come from the container environment, or from choices left to you, like separate partitions or a mail relay.",
+  "tts": "On web zero one, the number of Lie-nis suggestions dropped from 44 to 26. Many of the remaining ones come from the container environment, or from choices left to you, like separate partitions or a mail relay."
+ },
+ {
+  "id": "s14_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "On a real virtual machine in CI, the score went from 61 to 73. A score is a direction, not a certificate, but it shows progress, and an alert fires if it ever drops below 75 in the lab.",
+  "tts": "On a real virtual machine in C-I, the score went from 61 to 73. A score is a direction, not a certificate, but it shows progress, and an alert fires if it ever drops below 75 in the lab."
+ },
+ {
+  "id": "s15_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The first run made 94 changes in 169 seconds, one server at a time.",
+  "tts": "The first run made 94 changes in one hundred and sixty-nine seconds, one server at a time."
+ },
+ {
+  "id": "s15_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The second run made zero changes on both servers. That is idempotence, and it is what makes drift detection possible.",
+  "tts": "The second run made zero changes on both servers. That is idempotence, and it is what makes drift detection possible."
+ },
+ {
+  "id": "s15_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then the verify playbook checks every single control on both servers. It passed in 26 seconds.",
+  "tts": "Then the verify playbook checks every single control on both servers. It passed in 26 seconds."
+ },
+ {
+  "id": "s16_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Now the attack. The attacker container tries to log in to db-01 with wrong passwords. It was banned after two failed logins, because in aggressive mode one connection counts twice.",
+  "tts": "Now the attack. The attacker container tries to log in to D-B zero one with wrong passwords. It was banned after two failed logins, because in aggressive mode one connection counts twice."
+ },
+ {
+  "id": "s16_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The ban came seven seconds after the first attempt. Across the runs, it was between three and seven seconds.",
+  "tts": "The ban came seven seconds after the first attempt. Across the runs, it was between three and seven seconds."
+ },
+ {
+  "id": "s16_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "From then on, SSH from that address is blocked. But the Ansible controller still connects, because it is on the ignore list.",
+  "tts": "From then on, S-S-H from that address is blocked. But the Ansible controller still connects, because it is on the ignore list."
+ },
+ {
+  "id": "s16_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the SSH attacker banned alert fired in Prometheus 100 seconds after the attack started. That delay depends on the one minute timer that exports the ban counter. The ban lasts one hour.",
+  "tts": "And the S-S-H attacker banned alert fired in Prometheus 100 seconds after the attack started. That delay depends on the one minute timer that exports the ban counter. The ban lasts one hour."
+ },
+ {
+  "id": "s17_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "What about drift? The test makes three changes by hand on web-01: password login back on, the firewall table deleted, and ICMP redirects accepted.",
+  "tts": "What about drift? The test makes three changes by hand on web zero one: password login back on, the firewall table deleted, and I-C-M-P redirects accepted."
+ },
+ {
+  "id": "s17_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then it runs the drift check. That is the same playbook, in check and diff mode, so it changes nothing. It shows the exact line: password authentication yes, instead of no.",
+  "tts": "Then it runs the drift check. That is the same playbook, in check and diff mode, so it changes nothing. It shows the exact line: password authentication yes, instead of no."
+ },
+ {
+  "id": "s17_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "It lists exactly the three settings that drifted, and exits with code two, so a scheduler or CI job can alert on it. And because check mode is read only, the firewall is still deleted afterwards.",
+  "tts": "It lists exactly the three settings that drifted, and exits with code two, so a scheduler or C-I job can alert on it. And because check mode is read only, the firewall is still deleted afterwards."
+ },
+ {
+  "id": "s17_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Running the playbook again on web-01 restored everything: five changes in 51 seconds. And the next drift check was clean.",
+  "tts": "Running the playbook again on web zero one restored everything: five changes in 51 seconds. And the next drift check was clean."
+ },
+ {
+  "id": "s18_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Hardening is not a one time event, so the protections are monitored. This is the Grafana dashboard, provisioned from a JSON file in git, at the end of a real lab run.",
+  "tts": "Hardening is not a one time event, so the protections are monitored. This is the Grafana dashboard, provisioned from a JSON file in git, at the end of a real lab run."
+ },
+ {
+  "id": "s18_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "It shows the Lynis score per server, banned addresses, firing alerts, days since the last audit, every security service per server, the baseline version, and fail2ban activity, CPU, memory and network.",
+  "tts": "It shows the Lie-nis score per server, banned addresses, firing alerts, days since the last audit, every security service per server, the baseline version, and fail-to-ban activity, C-P-U, memory and network."
+ },
+ {
+  "id": "s19_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Prometheus evaluates nine alert rules. Server down covers availability.",
+  "tts": "Prometheus evaluates nine alert rules. Server down covers availability."
+ },
+ {
+  "id": "s19_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Three rules watch the protections themselves: a security service that stopped, auditd not running, and fail2ban not answering.",
+  "tts": "Three rules watch the protections themselves: a security service that stopped, audit-D not running, and fail-to-ban not answering."
+ },
+ {
+  "id": "s19_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Two rules watch the audit: the score dropping below 75, and a report older than eight days, which means the weekly timer did not run.",
+  "tts": "Two rules watch the audit: the score dropping below 75, and a report older than eight days, which means the weekly timer did not run."
+ },
+ {
+  "id": "s19_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the rest cover attacks and housekeeping. Every rule has a unit test that runs with prom tool in CI.",
+  "tts": "And the rest cover attacks and housekeeping. Every rule has a unit test that runs with prom-tool in C-I."
+ },
+ {
+  "id": "s20_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "All of this runs in GitHub Actions on every push, in four layers. First, static checks: yamllint, ansible lint with the production profile, ShellCheck, seven pytest tests, and the alert rule tests.",
+  "tts": "All of this runs in GitHub Actions on every push, in four layers. First, static checks: yamllint, ansible lint with the production profile, ShellCheck, seven pie-test tests, and the alert rule tests."
+ },
+ {
+  "id": "s20_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Second, Molecule. It runs every role on three distributions, Ubuntu 24.04, Debian 12 and Debian 13, in systemd containers. The second run must change nothing, and 44 verify checks must pass. Locally the whole Molecule test took 430 seconds.",
+  "tts": "Second, Molecule. It runs every role on three distributions, Ubuntu twenty-four oh-four, Debian 12 and Debian 13, in system-D containers. The second run must change nothing, and 44 verify checks must pass. Locally the whole Molecule test took 430 seconds."
+ },
+ {
+  "id": "s20_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Third, the lab end to end test, with real SSH and real attacks: everything you saw in the results. The final clean run took 823 seconds, and every check passed.",
+  "tts": "Third, the lab end to end test, with real S-S-H and real attacks: everything you saw in the results. The final clean run took 823 seconds, and every check passed."
+ },
+ {
+  "id": "s20_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And fourth, a real virtual machine. Containers cannot load audit rules or most kernel settings, so a CI job applies the baseline to the runner itself: 50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded.",
+  "tts": "And fourth, a real virtual machine. Containers cannot load audit rules or most kernel settings, so a C-I job applies the baseline to the runner itself: 50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded."
+ },
+ {
+  "id": "s21_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And the tests found real bugs. The unit tests caught that the metric writer printed the Lynis timestamp in scientific notation, losing precision. Whole numbers are now written as integers.",
+  "tts": "And the tests found real bugs. The unit tests caught that the metric writer printed the Lie-nis timestamp in scientific notation, losing precision. Whole numbers are now written as integers."
+ },
+ {
+  "id": "s21_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Molecule found that the Lynis download site answers 403 to Ansible. The project now downloads a pinned GitHub release, verified by its SHA 256 checksum.",
+  "tts": "Molecule found that the Lie-nis download site answers 403 to Ansible. The project now downloads a pinned GitHub release, verified by its shah two fifty-six checksum."
+ },
+ {
+  "id": "s21_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The end to end test found that its own unban check, which sent an SSH probe, was counted as another failed login. It now checks the nftables ban set instead.",
+  "tts": "The end to end test found that its own unban check, which sent an S-S-H probe, was counted as another failed login. It now checks the N-F-tables ban set instead."
+ },
+ {
+  "id": "s21_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And one honest limit. On GitHub hosted runners, auditd was running and every rule was loaded, but the kernel produced no audit records at all, for any rule. The test reports this as not verifiable here, instead of hiding it, and you should confirm it once on a real server.",
+  "tts": "And one honest limit. On GitHub hosted runners, audit-D was running and every rule was loaded, but the kernel produced no audit records at all, for any rule. The test reports this as not verifiable here, instead of hiding it, and you should confirm it once on a real server."
+ },
+ {
+  "id": "s22_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Now let us make it practical. You need Docker with Compose, and a Bash terminal. Git Bash on Windows works, and about three gigabytes of disk space. Clone the repository and go into the folder.",
+  "tts": "Now let us make it practical. You need Docker with Compose, and a Bash terminal. Git Bash on Windows works, and about three gigabytes of disk space. Clone the repository and go into the folder."
+ },
+ {
+  "id": "s22_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Make lab up creates two fresh servers, web-01 on Ubuntu and db-01 on Debian, plus the attacker, Prometheus and Grafana. Ansible, Molecule and the linters are all inside a pinned controller image, so you do not install anything else.",
+  "tts": "Make lab up creates two fresh servers, web zero one on Ubuntu and D-B zero one on Debian, plus the attacker, Prometheus and Grafana. Ansible, Molecule and the linters are all inside a pinned controller image, so you do not install anything else."
+ },
+ {
+  "id": "s22_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then measure the untouched servers with make audit, apply the baseline with make harden, and measure again.",
+  "tts": "Then measure the untouched servers with make audit, apply the baseline with make harden, and measure again."
+ },
+ {
+  "id": "s22_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Make compare shows the before and after table, make verify checks every control, and make drift shows anything that differs from the baseline.",
+  "tts": "Make compare shows the before and after table, make verify checks every control, and make drift shows anything that differs from the baseline."
+ },
+ {
+  "id": "s22_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Grafana runs on localhost port 3000, and Prometheus on port 9090. To run the whole proof from scratch, with the attacks, run make e2e. It takes about ten minutes, and make lab down removes everything again.",
+  "tts": "Grafana runs on localhost port 3000, and Prometheus on port 9090. To run the whole proof from scratch, with the attacks, run make E-2-E. It takes about ten minutes, and make lab down removes everything again."
+ },
+ {
+  "id": "s23_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Once the lab is up, practice like an attacker and like an operator. Try to log in with a password, and see it rejected.",
+  "tts": "Once the lab is up, practice like an attacker and like an operator. Try to log in with a password, and see it rejected."
+ },
+ {
+  "id": "s23_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Run a brute force from the attacker container, and watch fail2ban ban it, and the alert appear in Prometheus.",
+  "tts": "Run a brute force from the attacker container, and watch fail-to-ban ban it, and the alert appear in Prometheus."
+ },
+ {
+  "id": "s23_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Change a setting by hand on one of the servers, then let make drift find it, and make harden repair it.",
+  "tts": "Change a setting by hand on one of the servers, then let make drift find it, and make harden repair it."
+ },
+ {
+  "id": "s23_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And make a mistake on purpose, like an invalid cipher or firewall address, and see the safety nets stop the run. The study guide has nine hands-on labs, step by step.",
+  "tts": "And make a mistake on purpose, like an invalid cipher or firewall address, and see the safety nets stop the run. The study guide has nine hands-on labs, step by step."
+ },
+ {
+  "id": "s24_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "How do you use this on real servers? Copy the lab inventory to a new folder for your environment, and set three things: the SSH user, your administrators with their public keys, and the firewall rules.",
+  "tts": "How do you use this on real servers? Copy the lab inventory to a new folder for your environment, and set three things: the S-S-H user, your administrators with their public keys, and the firewall rules."
+ },
+ {
+  "id": "s24_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then preview. Run the playbook in check and diff mode. It changes nothing, and shows you exactly what it would change.",
+  "tts": "Then preview. Run the playbook in check and diff mode. It changes nothing, and shows you exactly what it would change."
+ },
+ {
+  "id": "s24_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then a canary: apply it to one host with limit, and check that you can still log in.",
+  "tts": "Then a canary: apply it to one host with limit, and check that you can still log in."
+ },
+ {
+  "id": "s24_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Then the rest of the fleet, one server at a time.",
+  "tts": "Then the rest of the fleet, one server at a time."
+ },
+ {
+  "id": "s24_04",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And keep it true: run the drift check on a schedule, watch the weekly Lynis score, and route the alerts to your team.",
+  "tts": "And keep it true: run the drift check on a schedule, watch the weekly Lie-nis score, and route the alerts to your team."
+ },
+ {
+  "id": "s25_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Let us be honest about the limits. It supports Debian and Ubuntu only.",
+  "tts": "Let us be honest about the limits. It supports Debian and Ubuntu only."
+ },
+ {
+  "id": "s25_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Containers and a CI virtual machine stand in for real cloud servers, and containers cannot load audit rules or most kernel settings. That is why the VM job exists.",
+  "tts": "Containers and a C-I virtual machine stand in for real cloud servers, and containers cannot load audit rules or most kernel settings. That is why the V-M job exists."
+ },
+ {
+  "id": "s25_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Lynis is a heuristic, not a compliance certificate. The score shows direction, not that a server is secure.",
+  "tts": "Lie-nis is a heuristic, not a compliance certificate. The score shows direction, not that a server is secure."
+ },
+ {
+  "id": "s25_03",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "And next on the list: mapping every task to the CIS benchmark, alert routing with Alertmanager, TLS for node exporter, and SSH certificates instead of individual keys.",
+  "tts": "And next on the list: mapping every task to the C-I-S benchmark, alert routing with Alertmanager, T-L-S for node exporter, and S-S-H certificates instead of individual keys."
+ },
+ {
+  "id": "s26_00",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "That is the project. One command turns a fresh server into a hardened, monitored and audited server, and the same command finds and repairs drift.",
+  "tts": "That is the project. One command turns a fresh server into a hardened, monitored and audited server, and the same command finds and repairs drift."
+ },
+ {
+  "id": "s26_01",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "The code, the documentation and a free study guide, with nine labs and 25 interview questions, are linked in the description. Clone it, run make lab up, and attack your own servers.",
+  "tts": "The code, the documentation and a free study guide, with nine labs and 25 interview questions, are linked in the description. Clone it, run make lab up, and attack your own servers."
+ },
+ {
+  "id": "s26_02",
+  "who": "narrator",
+  "voice": "Steve",
+  "text": "Now I would like to hear from you: how do you keep your servers on a baseline today? Tell me in the comments. And if this helped, subscribe for more real DevOps projects. Thanks for watching.",
+  "tts": "Now I would like to hear from you: how do you keep your servers on a baseline today? Tell me in the comments. And if this helped, subscribe for more real DevOps projects. Thanks for watching."
+ }
+]

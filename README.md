@@ -15,6 +15,8 @@ The playbook is **idempotent**: running it again changes nothing, so the same co
 
 > 📚 **New to DevOps? Start with the [study guide](study/README.md)** (also available as a single **[PDF](study/study-guide.pdf)**). It teaches every tool in this project from zero: Linux basics, SSH, Ansible, nftables, fail2ban, unattended-upgrades, sysctl, auditd, Lynis, Prometheus, Grafana, Molecule and GitHub Actions. It includes 9 hands-on labs and 25 interview questions.
 
+> 🎬 **Prefer video?** A 19-minute walkthrough of every role, the safety nets, the measured attacks and drift, a hands-on lab on your laptop and the production rollout is built from code in [video/](video/README.md), with the YouTube upload package (description, chapters, captions, thumbnail).
+
 **Measured in the lab** (2 servers, Ubuntu 24.04 + Debian 12, details in [docs/test-results.md](docs/test-results.md)):
 
 | | Before | After |

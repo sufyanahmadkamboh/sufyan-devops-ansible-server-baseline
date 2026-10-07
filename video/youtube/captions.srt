@@ -1,0 +1,1111 @@
+1
+00:00:00,500 --> 00:00:03,244
+You install a fresh Ubuntu or Debian server.
+
+2
+00:00:03,244 --> 00:00:08,170
+Out of the box, it accepts password logins, and it lets root log in with a key.
+
+3
+00:00:08,733 --> 00:00:14,983
+Bots start guessing SSH passwords on internet facing servers within minutes of them coming online.
+
+4
+00:00:15,533 --> 00:00:18,833
+And when teams harden servers by hand from a checklist,
+
+5
+00:00:18,833 --> 00:00:25,613
+every server ends up a little different, and nobody notices when someone quietly switches password login back on.
+
+6
+00:00:26,167 --> 00:00:31,457
+In this video I will show you a project that fixes all of that with one Ansible command:
+
+7
+00:00:31,457 --> 00:00:36,207
+the same security baseline on every server, with monitoring and an audit score.
+
+8
+00:00:36,767 --> 00:00:38,296
+And everything is measured.
+
+9
+00:00:38,296 --> 00:00:40,846
+The Lynis hardening score goes from 61 to 77,
+
+10
+00:00:40,846 --> 00:00:45,604
+password logins are rejected, and a brute force attacker is banned in seven seconds.
+
+11
+00:00:45,604 --> 00:00:49,117
+The code and a free study guide are linked in the description.
+
+12
+00:00:50,867 --> 00:00:52,164
+Here is the plan.
+
+13
+00:00:52,164 --> 00:00:57,277
+First, why a fresh server is not safe, and the idea behind the fix.
+
+14
+00:00:57,833 --> 00:01:00,649
+Then the architecture, and the lab:
+
+15
+00:01:00,649 --> 00:01:05,233
+a controller, two servers and an attacker, all in Docker.
+
+16
+00:01:05,767 --> 00:01:07,868
+Then the roles, one by one:
+
+17
+00:01:07,868 --> 00:01:14,017
+SSH, the firewall, fail2ban, the kernel, automatic updates and the audit trail.
+
+18
+00:01:14,567 --> 00:01:18,945
+Next, the safety nets that make sure the automation can never lock you out,
+
+19
+00:01:18,945 --> 00:01:22,097
+and the monitoring with Prometheus, Grafana and Lynis.
+
+20
+00:01:22,633 --> 00:01:25,275
+And finally the tests that prove it on every push,
+
+21
+00:01:25,275 --> 00:01:29,713
+how to run the whole lab on your own laptop, and how to roll it out to real servers.
+
+22
+00:01:31,467 --> 00:01:33,511
+Let us start with the problem.
+
+23
+00:01:33,511 --> 00:01:40,937
+Debian and Ubuntu install OpenSSH with password logins switched on, and they allow root to log in with a key.
+
+24
+00:01:41,500 --> 00:01:45,056
+The firewall is open, so every port a service opens is reachable.
+
+25
+00:01:45,056 --> 00:01:47,080
+And nothing records who changed what.
+
+26
+00:01:47,633 --> 00:01:50,706
+Hardening is usually done by hand, from a checklist.
+
+27
+00:01:50,706 --> 00:01:54,843
+So ten servers hardened by hand become ten slightly different servers.
+
+28
+00:01:55,400 --> 00:01:56,527
+Then drift sets in.
+
+29
+00:01:56,527 --> 00:02:02,580
+Someone temporarily switches password login back on to debug something, and it stays that way forever.
+
+30
+00:02:03,133 --> 00:02:05,071
+And hardening itself is risky.
+
+31
+00:02:05,071 --> 00:02:11,853
+One typo in the SSH config or one wrong firewall rule, and you have cut off the only way into the server.
+
+32
+00:02:12,400 --> 00:02:13,983
+Finally, if someone asks:
+
+33
+00:02:13,983 --> 00:02:15,377
+is this server secure?
+
+34
+00:02:15,377 --> 00:02:20,760
+Without an audit score, there is no number to show, and no way to catch a regression.
+
+35
+00:02:22,500 --> 00:02:23,555
+Here is the idea:
+
+36
+00:02:23,555 --> 00:02:30,130
+write the security baseline as code, with Ansible, and apply it to any number of servers with one command.
+
+37
+00:02:30,667 --> 00:02:32,058
+Every change must be safe.
+
+38
+00:02:32,058 --> 00:02:36,608
+Risky files are validated by the program that will read them before they are written,
+
+39
+00:02:36,608 --> 00:02:39,767
+and guards stop the run before anything could lock you out.
+
+40
+00:02:40,333 --> 00:02:41,779
+The playbook is idempotent:
+
+41
+00:02:41,779 --> 00:02:43,545
+running it again changes nothing.
+
+42
+00:02:43,545 --> 00:02:45,419
+That gives you two things for free.
+
+43
+00:02:45,419 --> 00:02:47,667
+In check mode, a re-run is a drift report.
+
+44
+00:02:47,667 --> 00:02:49,433
+In normal mode, it is the repair.
+
+45
+00:02:49,000 --> 00:02:57,310
+The result is measured with Lynis, an open source audit tool, before and after, and then every week.
+
+46
+00:02:57,867 --> 00:03:00,249
+And the protections themselves are monitored,
+
+47
+00:03:00,249 --> 00:03:04,007
+with alerts, and proven by tests that attack the servers on every push.
+
+48
+00:03:05,767 --> 00:03:07,332
+Here is the architecture.
+
+49
+00:03:07,332 --> 00:03:11,527
+You run one command, make harden, or the Ansible playbook directly.
+
+50
+00:03:12,067 --> 00:03:18,316
+A controller container runs Ansible, and connects to the servers over SSH, with a key.
+
+51
+00:03:18,316 --> 00:03:20,714
+In the lab there are two servers:
+
+52
+00:03:20,714 --> 00:03:24,057
+web-01 on Ubuntu 24.04 and db-01 on Debian 12.
+
+53
+00:03:24,600 --> 00:03:27,425
+An attacker container sits on the same network.
+
+54
+00:03:27,425 --> 00:03:30,610
+The tests use it for SSH brute force and port probes.
+
+55
+00:03:31,167 --> 00:03:36,114
+Prometheus scrapes every server's node exporter on port 9100 every fifteen seconds,
+
+56
+00:03:36,114 --> 00:03:37,962
+and evaluates nine alert rules.
+
+57
+00:03:37,962 --> 00:03:40,227
+Grafana shows it all on one dashboard.
+
+58
+00:03:40,767 --> 00:03:44,404
+After the run, every server has the same set of protections:
+
+59
+00:03:44,404 --> 00:03:47,133
+hardened SSH, an nftables firewall, fail2ban,
+
+60
+00:03:47,133 --> 00:03:52,347
+automatic updates, kernel settings, an audit trail, metrics, and a weekly Lynis audit.
+
+61
+00:03:54,100 --> 00:03:56,655
+Ansible is an agentless configuration tool.
+
+62
+00:03:56,655 --> 00:04:01,765
+It connects over SSH, and its modules only change what differs from the desired state.
+
+63
+00:04:01,765 --> 00:04:03,310
+This is the main playbook.
+
+64
+00:04:03,867 --> 00:04:10,530
+Serial one means one server at a time, and max fail percentage zero means the first failure stops the rollout.
+
+65
+00:04:10,530 --> 00:04:13,377
+A mistake hits one server, not the whole fleet.
+
+66
+00:04:13,933 --> 00:04:16,146
+Then nine roles, in a fixed order.
+
+67
+00:04:16,146 --> 00:04:22,523
+Each security control is its own role, with its own defaults, templates, and its own verify tasks.
+
+68
+00:04:23,067 --> 00:04:26,160
+At the end, it applies pending service changes,
+
+69
+00:04:26,160 --> 00:04:30,571
+throws away the existing SSH connection, and opens a brand new one.
+
+70
+00:04:30,571 --> 00:04:35,837
+If the new SSH or firewall settings had locked us out, the run fails right here.
+
+71
+00:04:37,600 --> 00:04:40,690
+Role one, common, creates the administrators.
+
+72
+00:04:40,690 --> 00:04:45,015
+They log in with SSH keys only, and any other keys are removed.
+
+73
+00:04:45,015 --> 00:04:51,400
+It also sets up sudo, login banners, a strict umask, no core dumps, and a persistent journal.
+
+74
+00:04:51,967 --> 00:04:54,120
+This role has the first safety net.
+
+75
+00:04:54,120 --> 00:05:00,087
+If no administrator with an SSH key is defined, the run stops right there, before SSH is touched.
+
+76
+00:05:00,633 --> 00:05:02,501
+Role two hardens the kernel:
+
+77
+00:05:02,501 --> 00:05:08,771
+34 sysctl settings, for example ignoring ICMP redirects, persisted to a file and applied live.
+
+78
+00:05:08,771 --> 00:05:11,973
+And nine rarely used kernel modules are blocked.
+
+79
+00:05:12,533 --> 00:05:13,629
+One design detail:
+
+80
+00:05:13,629 --> 00:05:18,375
+the role reads the running values first, and writes only the ones that differ.
+
+81
+00:05:18,375 --> 00:05:22,573
+So when this role reports changed, it really means something drifted.
+
+82
+00:05:24,333 --> 00:05:25,434
+Role three is SSH.
+
+83
+00:05:25,434 --> 00:05:28,308
+Only members of the ssh users group may log in,
+
+84
+00:05:28,308 --> 00:05:32,467
+root may never log in, and the only accepted method is a public key.
+
+85
+00:05:32,467 --> 00:05:35,463
+Password and keyboard interactive logins are off.
+
+86
+00:05:36,000 --> 00:05:41,690
+Tunnels and forwarding are switched off, so a login is a shell, not a network path into the server.
+
+87
+00:05:42,233 --> 00:05:45,290
+Only modern key exchange, ciphers and MACs are allowed,
+
+88
+00:05:45,290 --> 00:05:51,013
+weak Diffie Hellman groups are removed, and verbose logging records the key fingerprint of every login.
+
+89
+00:05:51,567 --> 00:05:52,953
+Two details matter.
+
+90
+00:05:52,953 --> 00:05:58,936
+The file is a drop in named zero zero, because sshd uses the first value it reads,
+
+91
+00:05:58,936 --> 00:06:01,344
+so cloud init cannot override it.
+
+92
+00:06:01,344 --> 00:06:05,138
+And validate runs sshd dash t on the new file first.
+
+93
+00:06:05,138 --> 00:06:08,787
+If the check fails, the old config stays in place.
+
+94
+00:06:10,533 --> 00:06:14,584
+Role four is the firewall, with nftables, the modern Linux firewall.
+
+95
+00:06:14,584 --> 00:06:17,265
+The input chain has a default policy of drop:
+
+96
+00:06:17,265 --> 00:06:20,303
+anything that is not explicitly allowed is dropped.
+
+97
+00:06:20,867 --> 00:06:23,641
+Then one rule per allowed port and source.
+
+98
+00:06:23,641 --> 00:06:28,927
+For example, port 9100, the metrics port, is only open to the Prometheus server.
+
+99
+00:06:29,467 --> 00:06:33,612
+The project uses its own table, and never flushes the whole rule set.
+
+100
+00:06:33,612 --> 00:06:37,757
+That way the tables of Docker, fail2ban or Kubernetes stay untouched.
+
+101
+00:06:38,300 --> 00:06:39,973
+And again, two safety nets.
+
+102
+00:06:39,973 --> 00:06:43,000
+The new rules are checked with nft dash c before they are loaded.
+
+103
+00:06:43,000 --> 00:06:49,390
+And if the rule list has no rule for SSH, the run stops before the firewall is touched.
+
+104
+00:06:51,133 --> 00:06:52,585
+Role five is fail2ban.
+
+105
+00:06:52,585 --> 00:06:56,016
+It reads failed SSH logins from the systemd journal.
+
+106
+00:06:56,016 --> 00:07:01,493
+In aggressive mode it also counts scanners that never even try a key or a password.
+
+107
+00:07:02,033 --> 00:07:08,773
+After too many failures, the address is banned, in fail2ban's own nftables table, next to the baseline table.
+
+108
+00:07:09,333 --> 00:07:12,693
+Repeat offenders get longer and longer bans, up to one week.
+
+109
+00:07:13,233 --> 00:07:18,410
+And the Ansible controller is on the ignore list, so a ban can never cut off your automation.
+
+110
+00:07:18,410 --> 00:07:21,693
+A small timer also exports the ban counters for Prometheus.
+
+111
+00:07:23,433 --> 00:07:27,403
+Role six turns on daily security updates with unattended upgrades.
+
+112
+00:07:27,403 --> 00:07:29,629
+Reboots are not automatic by default:
+
+113
+00:07:29,629 --> 00:07:31,433
+a reboot should be a decision.
+
+114
+00:07:31,000 --> 00:07:35,161
+Role seven is auditd, the kernel audit trail.
+
+115
+00:07:35,161 --> 00:07:39,025
+It records changes to accounts, sudo, the SSH settings,
+
+116
+00:07:39,025 --> 00:07:46,330
+the firewall, services, the clock and kernel modules, and every command run as root by a logged in user.
+
+117
+00:07:46,867 --> 00:07:53,142
+Role eight installs node exporter, pinned and checksum verified, in a sandboxed systemd unit.
+
+118
+00:07:53,142 --> 00:07:59,147
+It exports the state of every security service, and custom metrics from small text files.
+
+119
+00:07:59,700 --> 00:08:04,374
+And role nine installs Lynis 3.1.7, also pinned and checksum verified.
+
+120
+00:08:04,374 --> 00:08:10,985
+A weekly timer runs the audit, and a small Python script turns the report into a Prometheus metric:
+
+121
+00:08:10,985 --> 00:08:12,320
+the hardening index.
+
+122
+00:08:14,067 --> 00:08:19,617
+Automation that changes SSH and the firewall can lock you out of every server at once.
+
+123
+00:08:19,617 --> 00:08:22,005
+So this project has four safety nets.
+
+124
+00:08:22,005 --> 00:08:23,167
+First, the guards:
+
+125
+00:08:23,167 --> 00:08:30,267
+the run stops if no admin key exists, if the allowed SSH groups are empty, or if the firewall has no SSH rule.
+
+126
+00:08:30,833 --> 00:08:33,130
+Second, validate before write.
+
+127
+00:08:33,130 --> 00:08:37,801
+Every risky file is checked by the program that will read it:
+
+128
+00:08:37,801 --> 00:08:40,558
+sshd dash t, nft dash c, and visudo.
+
+129
+00:08:40,558 --> 00:08:44,233
+If the check fails, the old file stays in place.
+
+130
+00:08:44,800 --> 00:08:46,612
+Third, one server at a time.
+
+131
+00:08:46,612 --> 00:08:50,300
+If something goes wrong, it stops after the first server.
+
+132
+00:08:50,867 --> 00:08:52,988
+And fourth, the access proof:
+
+133
+00:08:52,988 --> 00:08:58,547
+a brand new SSH connection at the end shows that the admin can still get in.
+
+134
+00:09:00,300 --> 00:09:04,828
+And the end to end test makes these mistakes on purpose.
+
+135
+00:09:04,828 --> 00:09:08,143
+Here is a run with an unknown SSH cipher.
+
+136
+00:09:08,143 --> 00:09:13,480
+sshd dash t rejects the file, the task fails, and changed is zero.
+
+137
+00:09:14,033 --> 00:09:18,713
+An invalid firewall address, three hundred dot one dot one dot one,
+
+138
+00:09:18,713 --> 00:09:22,693
+is rejected by nft dash c, and the old rules stay active.
+
+139
+00:09:23,233 --> 00:09:28,903
+And with no administrator defined, the lockout guard stops the run before SSH is touched.
+
+140
+00:09:29,467 --> 00:09:36,057
+After all three failed runs, the admin can still log in, and a drift check confirms that nothing was changed.
+
+141
+00:09:37,800 --> 00:09:39,605
+So what does the baseline change?
+
+142
+00:09:39,605 --> 00:09:42,887
+Here are the measured results from the lab, on both servers.
+
+143
+00:09:42,887 --> 00:09:46,771
+Before, with distribution defaults, the servers offered password login,
+
+144
+00:09:46,771 --> 00:09:50,490
+accepted the correct password, and let root log in with a valid key.
+
+145
+00:09:51,033 --> 00:09:54,784
+After the baseline, the only login method offered is public key.
+
+146
+00:09:54,784 --> 00:09:59,062
+The correct password is rejected, root is rejected even with a valid key,
+
+147
+00:09:59,062 --> 00:10:01,933
+and the metrics port is blocked for the attacker.
+
+148
+00:10:02,500 --> 00:10:08,380
+And the admin still logs in with a key, and Prometheus still scrapes both servers through the firewall.
+
+149
+00:10:10,133 --> 00:10:13,336
+Lynis gives every server a hardening index.
+
+150
+00:10:13,336 --> 00:10:20,263
+Both lab servers went from 61 to 77, and the same result came from three separate clean runs.
+
+151
+00:10:20,800 --> 00:10:24,930
+On web-01, the number of Lynis suggestions dropped from 44 to 26.
+
+152
+00:10:24,930 --> 00:10:28,933
+Many of the remaining ones come from the container environment,
+
+153
+00:10:28,933 --> 00:10:33,380
+or from choices left to you, like separate partitions or a mail relay.
+
+154
+00:10:33,933 --> 00:10:38,328
+On a real virtual machine in CI, the score went from 61 to 73.
+
+155
+00:10:38,328 --> 00:10:41,304
+A score is a direction, not a certificate,
+
+156
+00:10:41,304 --> 00:10:46,903
+but it shows progress, and an alert fires if it ever drops below 75 in the lab.
+
+157
+00:10:48,667 --> 00:10:54,887
+The first run made 94 changes in 169 seconds, one server at a time.
+
+158
+00:10:55,433 --> 00:10:58,432
+The second run made zero changes on both servers.
+
+159
+00:10:58,432 --> 00:11:02,533
+That is idempotence, and it is what makes drift detection possible.
+
+160
+00:11:03,067 --> 00:11:07,155
+Then the verify playbook checks every single control on both servers.
+
+161
+00:11:07,155 --> 00:11:08,577
+It passed in 26 seconds.
+
+162
+00:11:10,333 --> 00:11:11,390
+Now the attack.
+
+163
+00:11:11,390 --> 00:11:16,251
+The attacker container tries to log in to db-01 with wrong passwords.
+
+164
+00:11:16,251 --> 00:11:22,873
+It was banned after two failed logins, because in aggressive mode one connection counts twice.
+
+165
+00:11:23,433 --> 00:11:26,551
+The ban came seven seconds after the first attempt.
+
+166
+00:11:26,551 --> 00:11:29,973
+Across the runs, it was between three and seven seconds.
+
+167
+00:11:30,533 --> 00:11:33,720
+From then on, SSH from that address is blocked.
+
+168
+00:11:33,720 --> 00:11:38,873
+But the Ansible controller still connects, because it is on the ignore list.
+
+169
+00:11:39,433 --> 00:11:44,923
+And the SSH attacker banned alert fired in Prometheus 100 seconds after the attack started.
+
+170
+00:11:44,923 --> 00:11:49,266
+That delay depends on the one minute timer that exports the ban counter.
+
+171
+00:11:49,266 --> 00:11:50,653
+The ban lasts one hour.
+
+172
+00:11:52,400 --> 00:11:53,538
+What about drift?
+
+173
+00:11:53,538 --> 00:11:56,684
+The test makes three changes by hand on web-01:
+
+174
+00:11:56,684 --> 00:12:02,040
+password login back on, the firewall table deleted, and ICMP redirects accepted.
+
+175
+00:12:02,600 --> 00:12:04,167
+Then it runs the drift check.
+
+176
+00:12:04,167 --> 00:12:08,110
+That is the same playbook, in check and diff mode, so it changes nothing.
+
+177
+00:12:08,110 --> 00:12:09,407
+It shows the exact line:
+
+178
+00:12:09,407 --> 00:12:11,730
+password authentication yes, instead of no.
+
+179
+00:12:12,267 --> 00:12:15,212
+It lists exactly the three settings that drifted,
+
+180
+00:12:15,212 --> 00:12:19,179
+and exits with code two, so a scheduler or CI job can alert on it.
+
+181
+00:12:19,179 --> 00:12:23,867
+And because check mode is read only, the firewall is still deleted afterwards.
+
+182
+00:12:24,400 --> 00:12:27,945
+Running the playbook again on web-01 restored everything:
+
+183
+00:12:27,945 --> 00:12:29,624
+five changes in 51 seconds.
+
+184
+00:12:29,624 --> 00:12:31,800
+And the next drift check was clean.
+
+185
+00:12:33,567 --> 00:12:37,873
+Hardening is not a one time event, so the protections are monitored.
+
+186
+00:12:37,873 --> 00:12:44,017
+This is the Grafana dashboard, provisioned from a JSON file in git, at the end of a real lab run.
+
+187
+00:12:44,567 --> 00:12:47,991
+It shows the Lynis score per server, banned addresses,
+
+188
+00:12:47,991 --> 00:12:50,591
+firing alerts, days since the last audit,
+
+189
+00:12:50,591 --> 00:12:57,187
+every security service per server, the baseline version, and fail2ban activity, CPU, memory and network.
+
+190
+00:12:58,933 --> 00:13:01,642
+Prometheus evaluates nine alert rules.
+
+191
+00:13:01,642 --> 00:13:03,923
+Server down covers availability.
+
+192
+00:13:04,467 --> 00:13:07,091
+Three rules watch the protections themselves:
+
+193
+00:13:07,091 --> 00:13:11,757
+a security service that stopped, auditd not running, and fail2ban not answering.
+
+194
+00:13:12,300 --> 00:13:13,880
+Two rules watch the audit:
+
+195
+00:13:13,880 --> 00:13:20,320
+the score dropping below 75, and a report older than eight days, which means the weekly timer did not run.
+
+196
+00:13:20,867 --> 00:13:23,351
+And the rest cover attacks and housekeeping.
+
+197
+00:13:23,351 --> 00:13:26,627
+Every rule has a unit test that runs with prom tool in CI.
+
+198
+00:13:28,367 --> 00:13:32,653
+All of this runs in GitHub Actions on every push, in four layers.
+
+199
+00:13:32,653 --> 00:13:34,038
+First, static checks:
+
+200
+00:13:34,038 --> 00:13:41,227
+yamllint, ansible lint with the production profile, ShellCheck, seven pytest tests, and the alert rule tests.
+
+201
+00:13:41,767 --> 00:13:43,205
+Second, Molecule.
+
+202
+00:13:43,205 --> 00:13:52,003
+It runs every role on three distributions, Ubuntu 24.04, Debian 12 and Debian 13, in systemd containers.
+
+203
+00:13:52,003 --> 00:13:57,671
+The second run must change nothing, and 44 verify checks must pass.
+
+204
+00:13:57,671 --> 00:14:01,817
+Locally the whole Molecule test took 430 seconds.
+
+205
+00:14:02,367 --> 00:14:06,729
+Third, the lab end to end test, with real SSH and real attacks:
+
+206
+00:14:06,729 --> 00:14:09,083
+everything you saw in the results.
+
+207
+00:14:09,083 --> 00:14:13,307
+The final clean run took 823 seconds, and every check passed.
+
+208
+00:14:13,867 --> 00:14:16,347
+And fourth, a real virtual machine.
+
+209
+00:14:16,347 --> 00:14:20,528
+Containers cannot load audit rules or most kernel settings,
+
+210
+00:14:20,528 --> 00:14:24,354
+so a CI job applies the baseline to the runner itself:
+
+211
+00:14:24,354 --> 00:14:31,937
+50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded.
+
+212
+00:14:33,700 --> 00:14:35,675
+And the tests found real bugs.
+
+213
+00:14:35,675 --> 00:14:41,996
+The unit tests caught that the metric writer printed the Lynis timestamp in scientific notation,
+
+214
+00:14:41,996 --> 00:14:43,115
+losing precision.
+
+215
+00:14:43,115 --> 00:14:45,880
+Whole numbers are now written as integers.
+
+216
+00:14:46,433 --> 00:14:51,296
+Molecule found that the Lynis download site answers 403 to Ansible.
+
+217
+00:14:51,296 --> 00:14:57,393
+The project now downloads a pinned GitHub release, verified by its SHA 256 checksum.
+
+218
+00:14:57,933 --> 00:15:01,730
+The end to end test found that its own unban check,
+
+219
+00:15:01,730 --> 00:15:06,272
+which sent an SSH probe, was counted as another failed login.
+
+220
+00:15:06,272 --> 00:15:09,473
+It now checks the nftables ban set instead.
+
+221
+00:15:10,033 --> 00:15:11,335
+And one honest limit.
+
+222
+00:15:11,335 --> 00:15:15,738
+On GitHub hosted runners, auditd was running and every rule was loaded,
+
+223
+00:15:15,738 --> 00:15:19,582
+but the kernel produced no audit records at all, for any rule.
+
+224
+00:15:19,582 --> 00:15:22,373
+The test reports this as not verifiable here,
+
+225
+00:15:22,373 --> 00:15:26,713
+instead of hiding it, and you should confirm it once on a real server.
+
+226
+00:15:28,467 --> 00:15:30,228
+Now let us make it practical.
+
+227
+00:15:30,228 --> 00:15:33,265
+You need Docker with Compose, and a Bash terminal.
+
+228
+00:15:33,265 --> 00:15:37,334
+Git Bash on Windows works, and about three gigabytes of disk space.
+
+229
+00:15:37,334 --> 00:15:40,007
+Clone the repository and go into the folder.
+
+230
+00:15:40,567 --> 00:15:46,033
+Make lab up creates two fresh servers, web-01 on Ubuntu and db-01 on Debian,
+
+231
+00:15:46,033 --> 00:15:49,053
+plus the attacker, Prometheus and Grafana.
+
+232
+00:15:49,053 --> 00:15:54,447
+Ansible, Molecule and the linters are all inside a pinned controller image,
+
+233
+00:15:54,447 --> 00:15:57,037
+so you do not install anything else.
+
+234
+00:15:57,600 --> 00:16:03,360
+Then measure the untouched servers with make audit, apply the baseline with make harden, and measure again.
+
+235
+00:16:03,900 --> 00:16:06,856
+Make compare shows the before and after table,
+
+236
+00:16:06,856 --> 00:16:12,960
+make verify checks every control, and make drift shows anything that differs from the baseline.
+
+237
+00:16:13,500 --> 00:16:18,270
+Grafana runs on localhost port 3000, and Prometheus on port 9090.
+
+238
+00:16:18,270 --> 00:16:23,260
+To run the whole proof from scratch, with the attacks, run make e2e.
+
+239
+00:16:23,260 --> 00:16:28,470
+It takes about ten minutes, and make lab down removes everything again.
+
+240
+00:16:30,233 --> 00:16:33,623
+Once the lab is up, practice like an attacker and like an operator.
+
+241
+00:16:33,623 --> 00:16:36,203
+Try to log in with a password, and see it rejected.
+
+242
+00:16:36,767 --> 00:16:43,077
+Run a brute force from the attacker container, and watch fail2ban ban it, and the alert appear in Prometheus.
+
+243
+00:16:43,633 --> 00:16:49,643
+Change a setting by hand on one of the servers, then let make drift find it, and make harden repair it.
+
+244
+00:16:50,200 --> 00:16:54,626
+And make a mistake on purpose, like an invalid cipher or firewall address,
+
+245
+00:16:54,626 --> 00:16:56,840
+and see the safety nets stop the run.
+
+246
+00:16:56,840 --> 00:17:00,010
+The study guide has nine hands-on labs, step by step.
+
+247
+00:17:01,767 --> 00:17:03,923
+How do you use this on real servers?
+
+248
+00:17:03,923 --> 00:17:08,835
+Copy the lab inventory to a new folder for your environment, and set three things:
+
+249
+00:17:08,835 --> 00:17:13,687
+the SSH user, your administrators with their public keys, and the firewall rules.
+
+250
+00:17:14,233 --> 00:17:15,113
+Then preview.
+
+251
+00:17:15,113 --> 00:17:17,820
+Run the playbook in check and diff mode.
+
+252
+00:17:17,820 --> 00:17:22,083
+It changes nothing, and shows you exactly what it would change.
+
+253
+00:17:22,633 --> 00:17:23,480
+Then a canary:
+
+254
+00:17:23,480 --> 00:17:27,653
+apply it to one host with limit, and check that you can still log in.
+
+255
+00:17:28,200 --> 00:17:31,610
+Then the rest of the fleet, one server at a time.
+
+256
+00:17:32,167 --> 00:17:33,103
+And keep it true:
+
+257
+00:17:33,103 --> 00:17:38,557
+run the drift check on a schedule, watch the weekly Lynis score, and route the alerts to your team.
+
+258
+00:17:40,300 --> 00:17:42,389
+Let us be honest about the limits.
+
+259
+00:17:42,389 --> 00:17:44,540
+It supports Debian and Ubuntu only.
+
+260
+00:17:45,100 --> 00:17:49,412
+Containers and a CI virtual machine stand in for real cloud servers,
+
+261
+00:17:49,412 --> 00:17:53,408
+and containers cannot load audit rules or most kernel settings.
+
+262
+00:17:53,408 --> 00:17:55,310
+That is why the VM job exists.
+
+263
+00:17:55,867 --> 00:17:59,312
+Lynis is a heuristic, not a compliance certificate.
+
+264
+00:17:59,312 --> 00:18:03,027
+The score shows direction, not that a server is secure.
+
+265
+00:18:03,567 --> 00:18:05,019
+And next on the list:
+
+266
+00:18:05,019 --> 00:18:10,067
+mapping every task to the CIS benchmark, alert routing with Alertmanager,
+
+267
+00:18:10,067 --> 00:18:14,977
+TLS for node exporter, and SSH certificates instead of individual keys.
+
+268
+00:18:16,733 --> 00:18:17,808
+That is the project.
+
+269
+00:18:17,808 --> 00:18:20,442
+One command turns a fresh server into a hardened,
+
+270
+00:18:20,442 --> 00:18:24,473
+monitored and audited server, and the same command finds and repairs drift.
+
+271
+00:18:25,033 --> 00:18:28,595
+The code, the documentation and a free study guide,
+
+272
+00:18:28,595 --> 00:18:33,693
+with nine labs and 25 interview questions, are linked in the description.
+
+273
+00:18:33,693 --> 00:18:37,533
+Clone it, run make lab up, and attack your own servers.
+
+274
+00:18:38,100 --> 00:18:39,884
+Now I would like to hear from you:
+
+275
+00:18:39,884 --> 00:18:42,454
+how do you keep your servers on a baseline today?
+
+276
+00:18:42,454 --> 00:18:43,713
+Tell me in the comments.
+
+277
+00:18:43,713 --> 00:18:46,861
+And if this helped, subscribe for more real DevOps projects.
+
+278
+00:18:46,861 --> 00:18:47,910
+Thanks for watching.

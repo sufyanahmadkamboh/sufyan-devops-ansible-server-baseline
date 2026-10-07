@@ -1,0 +1,5 @@
+Linux Server Hardening with Ansible: One Command, Measured (Full DevOps Project)
+
+Alternatives (A/B test with YouTube "Test & compare"):
+Harden a Fresh Linux Server in One Command (Ansible, nftables, fail2ban, Lynis)
+Ansible Server Hardening That Cannot Lock You Out: Drift Detection, Monitoring, Real Attacks

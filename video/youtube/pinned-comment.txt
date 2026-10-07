@@ -1,0 +1,3 @@
+📚 Free study guide with 9 hands-on labs and 25 interview questions: https://github.com/sufyanahmadkamboh/sufyan-devops-ansible-server-baseline/tree/main/study
+🧪 Want to try it yourself? Jump to the "Run it yourself" chapter: make lab-up, make harden, then attack your own servers.
+Which safety net would have saved you the most time? For me it is validate-before-write: a typo in sshd_config never reaches the server.
