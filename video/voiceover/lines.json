@@ -172,7 +172,7 @@
   "who": "narrator",
   "voice": "Steve",
   "text": "Prometheus scrapes every server's node exporter on port 9100 every fifteen seconds, and evaluates nine alert rules. Grafana shows it all on one dashboard.",
-  "tts": "Prometheus scrapes every server's node exporter on port 9100 every fifteen seconds, and evaluates nine alert rules. Grafana shows it all on one dashboard."
+  "tts": "Prometheus scrapes every server's node exporter on port ninety-one hundred every fifteen seconds, and evaluates nine alert rules. Grafana shows it all on one dashboard."
  },
  {
   "id": "s04_04",
@@ -277,7 +277,7 @@
   "who": "narrator",
   "voice": "Steve",
   "text": "Then one rule per allowed port and source. For example, port 9100, the metrics port, is only open to the Prometheus server.",
-  "tts": "Then one rule per allowed port and source. For example, port 9100, the metrics port, is only open to the Prometheus server."
+  "tts": "Then one rule per allowed port and source. For example, port ninety-one hundred, the metrics port, is only open to the Prometheus server."
  },
  {
   "id": "s08_02",

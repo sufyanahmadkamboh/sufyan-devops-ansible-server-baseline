@@ -2,12 +2,12 @@
 1:30 The problem
 2:22 The idea
 3:05 Architecture
-3:53 The playbook
-4:37 The roles
-8:13 Safety nets
-9:37 Measured results
-12:33 Monitoring
-13:27 Testing
-15:27 Run it yourself
-17:01 Production rollout
-17:39 Limits
+3:54 The playbook
+4:38 The roles
+8:15 Safety nets
+9:39 Measured results
+12:35 Monitoring
+13:29 Testing
+15:29 Run it yourself
+17:03 Production rollout
+17:41 Limits
