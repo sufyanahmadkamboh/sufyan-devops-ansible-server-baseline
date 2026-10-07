@@ -22,9 +22,9 @@ make verify · make drift · make e2e (the whole proof with attacks, about 10 mi
 9:39 Measured results
 12:35 Monitoring
 13:29 Testing
-15:29 Run it yourself
+15:30 Run it yourself
 17:03 Production rollout
-17:41 Limits
+17:42 Limits
 
 🧰 Tools used, and what each one does here
 • Ansible (ansible-core 2.21): nine roles, serial rollout, validate-before-write, check/diff drift detection

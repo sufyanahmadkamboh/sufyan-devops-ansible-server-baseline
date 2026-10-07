@@ -827,285 +827,285 @@ everything you saw in the results.
 The final clean run took 823 seconds, and every check passed.
 
 208
-00:14:15,833 --> 00:14:18,314
+00:14:15,833 --> 00:14:18,381
 And fourth, a real virtual machine.
 
 209
-00:14:18,314 --> 00:14:22,494
+00:14:18,381 --> 00:14:22,675
 Containers cannot load audit rules or most kernel settings,
 
 210
-00:14:22,494 --> 00:14:26,321
+00:14:22,675 --> 00:14:26,605
 so a CI job applies the baseline to the runner itself:
 
 211
-00:14:26,321 --> 00:14:33,903
+00:14:26,605 --> 00:14:34,393
 50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded.
 
 212
-00:14:35,667 --> 00:14:37,642
+00:14:36,133 --> 00:14:38,108
 And the tests found real bugs.
 
 213
-00:14:37,642 --> 00:14:43,962
+00:14:38,108 --> 00:14:44,429
 The unit tests caught that the metric writer printed the Lynis timestamp in scientific notation,
 
 214
-00:14:43,962 --> 00:14:45,081
+00:14:44,429 --> 00:14:45,548
 losing precision.
 
 215
-00:14:45,081 --> 00:14:47,847
+00:14:45,548 --> 00:14:48,313
 Whole numbers are now written as integers.
 
 216
-00:14:48,400 --> 00:14:53,263
+00:14:48,867 --> 00:14:53,730
 Molecule found that the Lynis download site answers 403 to Ansible.
 
 217
-00:14:53,263 --> 00:14:59,360
+00:14:53,730 --> 00:14:59,827
 The project now downloads a pinned GitHub release, verified by its SHA 256 checksum.
 
 218
-00:14:59,900 --> 00:15:03,697
+00:15:00,367 --> 00:15:04,164
 The end to end test found that its own unban check,
 
 219
-00:15:03,697 --> 00:15:08,239
+00:15:04,164 --> 00:15:08,705
 which sent an SSH probe, was counted as another failed login.
 
 220
-00:15:08,239 --> 00:15:11,440
+00:15:08,705 --> 00:15:11,907
 It now checks the nftables ban set instead.
 
 221
-00:15:12,000 --> 00:15:13,302
+00:15:12,467 --> 00:15:13,769
 And one honest limit.
 
 222
-00:15:13,302 --> 00:15:17,705
+00:15:13,769 --> 00:15:18,171
 On GitHub hosted runners, auditd was running and every rule was loaded,
 
 223
-00:15:17,705 --> 00:15:21,549
+00:15:18,171 --> 00:15:22,016
 but the kernel produced no audit records at all, for any rule.
 
 224
-00:15:21,549 --> 00:15:24,339
+00:15:22,016 --> 00:15:24,806
 The test reports this as not verifiable here,
 
 225
-00:15:24,339 --> 00:15:28,680
+00:15:24,806 --> 00:15:29,147
 instead of hiding it, and you should confirm it once on a real server.
 
 226
-00:15:30,433 --> 00:15:32,195
+00:15:30,900 --> 00:15:32,661
 Now let us make it practical.
 
 227
-00:15:32,195 --> 00:15:35,232
+00:15:32,661 --> 00:15:35,698
 You need Docker with Compose, and a Bash terminal.
 
 228
-00:15:35,232 --> 00:15:39,301
+00:15:35,698 --> 00:15:39,768
 Git Bash on Windows works, and about three gigabytes of disk space.
 
 229
-00:15:39,301 --> 00:15:41,973
+00:15:39,768 --> 00:15:42,440
 Clone the repository and go into the folder.
 
 230
-00:15:42,533 --> 00:15:47,999
+00:15:43,000 --> 00:15:48,466
 Make lab up creates two fresh servers, web-01 on Ubuntu and db-01 on Debian,
 
 231
-00:15:47,999 --> 00:15:51,020
+00:15:48,466 --> 00:15:51,487
 plus the attacker, Prometheus and Grafana.
 
 232
-00:15:51,020 --> 00:15:56,414
+00:15:51,487 --> 00:15:56,881
 Ansible, Molecule and the linters are all inside a pinned controller image,
 
 233
-00:15:56,414 --> 00:15:59,003
+00:15:56,881 --> 00:15:59,470
 so you do not install anything else.
 
 234
-00:15:59,567 --> 00:16:05,327
+00:16:00,033 --> 00:16:05,793
 Then measure the untouched servers with make audit, apply the baseline with make harden, and measure again.
 
 235
-00:16:05,867 --> 00:16:08,822
+00:16:06,333 --> 00:16:09,289
 Make compare shows the before and after table,
 
 236
-00:16:08,822 --> 00:16:14,927
+00:16:09,289 --> 00:16:15,393
 make verify checks every control, and make drift shows anything that differs from the baseline.
 
 237
-00:16:15,467 --> 00:16:20,237
+00:16:15,933 --> 00:16:20,703
 Grafana runs on localhost port 3000, and Prometheus on port 9090.
 
 238
-00:16:20,237 --> 00:16:25,227
+00:16:20,703 --> 00:16:25,693
 To run the whole proof from scratch, with the attacks, run make e2e.
 
 239
-00:16:25,227 --> 00:16:30,437
+00:16:25,693 --> 00:16:30,903
 It takes about ten minutes, and make lab down removes everything again.
 
 240
-00:16:32,200 --> 00:16:35,590
+00:16:32,667 --> 00:16:36,056
 Once the lab is up, practice like an attacker and like an operator.
 
 241
-00:16:35,590 --> 00:16:38,170
+00:16:36,056 --> 00:16:38,637
 Try to log in with a password, and see it rejected.
 
 242
-00:16:38,733 --> 00:16:45,043
+00:16:39,200 --> 00:16:45,510
 Run a brute force from the attacker container, and watch fail2ban ban it, and the alert appear in Prometheus.
 
 243
-00:16:45,600 --> 00:16:51,610
+00:16:46,067 --> 00:16:52,077
 Change a setting by hand on one of the servers, then let make drift find it, and make harden repair it.
 
 244
-00:16:52,167 --> 00:16:56,593
+00:16:52,633 --> 00:16:57,060
 And make a mistake on purpose, like an invalid cipher or firewall address,
 
 245
-00:16:56,593 --> 00:16:58,806
+00:16:57,060 --> 00:16:59,273
 and see the safety nets stop the run.
 
 246
-00:16:58,806 --> 00:17:01,977
+00:16:59,273 --> 00:17:02,443
 The study guide has nine hands-on labs, step by step.
 
 247
-00:17:03,733 --> 00:17:05,890
+00:17:04,200 --> 00:17:06,356
 How do you use this on real servers?
 
 248
-00:17:05,890 --> 00:17:10,801
+00:17:06,356 --> 00:17:11,268
 Copy the lab inventory to a new folder for your environment, and set three things:
 
 249
-00:17:10,801 --> 00:17:15,653
+00:17:11,268 --> 00:17:16,120
 the SSH user, your administrators with their public keys, and the firewall rules.
 
 250
-00:17:16,200 --> 00:17:17,080
+00:17:16,667 --> 00:17:17,546
 Then preview.
 
 251
-00:17:17,080 --> 00:17:19,787
+00:17:17,546 --> 00:17:20,253
 Run the playbook in check and diff mode.
 
 252
-00:17:19,787 --> 00:17:24,050
+00:17:20,253 --> 00:17:24,517
 It changes nothing, and shows you exactly what it would change.
 
 253
-00:17:24,600 --> 00:17:25,447
+00:17:25,067 --> 00:17:25,913
 Then a canary:
 
 254
-00:17:25,447 --> 00:17:29,620
+00:17:25,913 --> 00:17:30,087
 apply it to one host with limit, and check that you can still log in.
 
 255
-00:17:30,167 --> 00:17:33,577
+00:17:30,633 --> 00:17:34,043
 Then the rest of the fleet, one server at a time.
 
 256
-00:17:34,133 --> 00:17:35,070
+00:17:34,600 --> 00:17:35,536
 And keep it true:
 
 257
-00:17:35,070 --> 00:17:40,523
+00:17:35,536 --> 00:17:40,990
 run the drift check on a schedule, watch the weekly Lynis score, and route the alerts to your team.
 
 258
-00:17:42,267 --> 00:17:44,356
+00:17:42,733 --> 00:17:44,823
 Let us be honest about the limits.
 
 259
-00:17:44,356 --> 00:17:46,507
+00:17:44,823 --> 00:17:46,973
 It supports Debian and Ubuntu only.
 
 260
-00:17:47,067 --> 00:17:51,379
+00:17:47,533 --> 00:17:51,846
 Containers and a CI virtual machine stand in for real cloud servers,
 
 261
-00:17:51,379 --> 00:17:55,374
+00:17:51,846 --> 00:17:55,841
 and containers cannot load audit rules or most kernel settings.
 
 262
-00:17:55,374 --> 00:17:57,277
+00:17:55,841 --> 00:17:57,743
 That is why the VM job exists.
 
 263
-00:17:57,833 --> 00:18:01,278
+00:17:58,300 --> 00:18:01,745
 Lynis is a heuristic, not a compliance certificate.
 
 264
-00:18:01,278 --> 00:18:04,993
+00:18:01,745 --> 00:18:05,460
 The score shows direction, not that a server is secure.
 
 265
-00:18:05,533 --> 00:18:06,986
+00:18:06,000 --> 00:18:07,452
 And next on the list:
 
 266
-00:18:06,986 --> 00:18:12,034
+00:18:07,452 --> 00:18:12,500
 mapping every task to the CIS benchmark, alert routing with Alertmanager,
 
 267
-00:18:12,034 --> 00:18:16,943
+00:18:12,500 --> 00:18:17,410
 TLS for node exporter, and SSH certificates instead of individual keys.
 
 268
-00:18:18,700 --> 00:18:19,775
+00:18:19,167 --> 00:18:20,242
 That is the project.
 
 269
-00:18:19,775 --> 00:18:22,409
+00:18:20,242 --> 00:18:22,875
 One command turns a fresh server into a hardened,
 
 270
-00:18:22,409 --> 00:18:26,440
+00:18:22,875 --> 00:18:26,907
 monitored and audited server, and the same command finds and repairs drift.
 
 271
-00:18:27,000 --> 00:18:30,561
+00:18:27,467 --> 00:18:31,028
 The code, the documentation and a free study guide,
 
 272
-00:18:30,561 --> 00:18:35,659
+00:18:31,028 --> 00:18:36,126
 with nine labs and 25 interview questions, are linked in the description.
 
 273
-00:18:35,659 --> 00:18:39,500
+00:18:36,126 --> 00:18:39,967
 Clone it, run make lab up, and attack your own servers.
 
 274
-00:18:40,067 --> 00:18:41,850
+00:18:40,533 --> 00:18:42,317
 Now I would like to hear from you:
 
 275
-00:18:41,850 --> 00:18:44,421
+00:18:42,317 --> 00:18:44,888
 how do you keep your servers on a baseline today?
 
 276
-00:18:44,421 --> 00:18:45,680
+00:18:44,888 --> 00:18:46,147
 Tell me in the comments.
 
 277
-00:18:45,680 --> 00:18:48,827
+00:18:46,147 --> 00:18:49,294
 And if this helped, subscribe for more real DevOps projects.
 
 278
-00:18:48,827 --> 00:18:49,877
+00:18:49,294 --> 00:18:50,343
 Thanks for watching.

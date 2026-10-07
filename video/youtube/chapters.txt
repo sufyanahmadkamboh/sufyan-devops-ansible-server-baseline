@@ -8,6 +8,6 @@
 9:39 Measured results
 12:35 Monitoring
 13:29 Testing
-15:29 Run it yourself
+15:30 Run it yourself
 17:03 Production rollout
-17:41 Limits
+17:42 Limits

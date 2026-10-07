@@ -585,14 +585,14 @@
   "who": "narrator",
   "voice": "Steve",
   "text": "Third, the lab end to end test, with real SSH and real attacks: everything you saw in the results. The final clean run took 823 seconds, and every check passed.",
-  "tts": "Third, the lab end to end test, with real S-S-H and real attacks: everything you saw in the results. The final clean run took 823 seconds, and every check passed."
+  "tts": "Third, the lab end to end test, with real S-S-H and real attacks: everything you saw in the results. The final clean run took eight hundred and twenty-three seconds, and every check passed."
  },
  {
   "id": "s20_03",
   "who": "narrator",
   "voice": "Steve",
   "text": "And fourth, a real virtual machine. Containers cannot load audit rules or most kernel settings, so a CI job applies the baseline to the runner itself: 50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded.",
-  "tts": "And fourth, a real virtual machine. Containers cannot load audit rules or most kernel settings, so a C-I job applies the baseline to the runner itself: 50 changes in 121 seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded."
+  "tts": "And fourth, a real virtual machine. Containers cannot load audit rules or most kernel settings, so a C-I job applies the baseline to the runner itself: 50 changes in one hundred and twenty-one seconds, then zero changes, with all 34 kernel settings live and every audit rule loaded."
  },
  {
   "id": "s21_00",
