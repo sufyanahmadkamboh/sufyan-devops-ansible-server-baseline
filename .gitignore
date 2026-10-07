@@ -15,3 +15,7 @@ id_*
 video/out/
 video/short/page.html
 video/short/__pycache__/
+
+# Social media packages (LinkedIn carousel/post, YouTube upload package): kept locally, not published
+linkedin/
+video/youtube/

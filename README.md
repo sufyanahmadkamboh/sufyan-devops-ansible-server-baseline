@@ -110,7 +110,6 @@ scripts/          lab-up · lab-down · harden · audit · verify · drift-check
 tests/            pytest for the Lynis converter · promtool tests for the alert rules
 docs/             architecture · runbook · troubleshooting · test-results
 study/            beginner study guide (+ PDF)
-linkedin/         post, carousel, project image
 ```
 
 ## 7. Prerequisites
