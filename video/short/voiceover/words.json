@@ -1,0 +1,803 @@
+{
+ "a01": [
+  {
+   "w": "A",
+   "start": 0.0,
+   "end": 0.16
+  },
+  {
+   "w": "bot",
+   "start": 0.16,
+   "end": 0.38
+  },
+  {
+   "w": "started",
+   "start": 0.38,
+   "end": 0.78
+  },
+  {
+   "w": "guessing",
+   "start": 0.78,
+   "end": 1.16
+  },
+  {
+   "w": "passwords",
+   "start": 1.16,
+   "end": 1.7
+  },
+  {
+   "w": "on",
+   "start": 1.7,
+   "end": 1.94
+  },
+  {
+   "w": "the",
+   "start": 1.94,
+   "end": 2.1
+  },
+  {
+   "w": "server.",
+   "start": 2.1,
+   "end": 2.44
+  },
+  {
+   "w": "It",
+   "start": 2.94,
+   "end": 3.08
+  },
+  {
+   "w": "was",
+   "start": 3.08,
+   "end": 3.2
+  },
+  {
+   "w": "banned",
+   "start": 3.2,
+   "end": 3.54
+  },
+  {
+   "w": "in",
+   "start": 3.54,
+   "end": 3.84
+  },
+  {
+   "w": "7",
+   "start": 3.84,
+   "end": 4.14
+  },
+  {
+   "w": "seconds.",
+   "start": 4.14,
+   "end": 4.48
+  }
+ ],
+ "a02": [
+  {
+   "w": "I",
+   "start": 0.0,
+   "end": 0.12
+  },
+  {
+   "w": "didn't",
+   "start": 0.12,
+   "end": 0.4
+  },
+  {
+   "w": "lift",
+   "start": 0.4,
+   "end": 0.54
+  },
+  {
+   "w": "a",
+   "start": 0.54,
+   "end": 0.72
+  },
+  {
+   "w": "finger.",
+   "start": 0.72,
+   "end": 0.92
+  }
+ ],
+ "a03": [
+  {
+   "w": "Here's",
+   "start": 0.0,
+   "end": 0.22
+  },
+  {
+   "w": "the",
+   "start": 0.22,
+   "end": 0.32
+  },
+  {
+   "w": "problem,",
+   "start": 0.32,
+   "end": 0.7
+  },
+  {
+   "w": "a",
+   "start": 1.08,
+   "end": 1.18
+  },
+  {
+   "w": "fresh",
+   "start": 1.18,
+   "end": 1.38
+  },
+  {
+   "w": "Ubuntu",
+   "start": 1.38,
+   "end": 1.7
+  },
+  {
+   "w": "server",
+   "start": 1.7,
+   "end": 2.14
+  },
+  {
+   "w": "accepts",
+   "start": 2.14,
+   "end": 2.56
+  },
+  {
+   "w": "password",
+   "start": 2.56,
+   "end": 3.1
+  },
+  {
+   "w": "logins",
+   "start": 3.1,
+   "end": 3.66
+  },
+  {
+   "w": "and",
+   "start": 3.66,
+   "end": 4.04
+  },
+  {
+   "w": "lets",
+   "start": 4.04,
+   "end": 4.2
+  },
+  {
+   "w": "root",
+   "start": 4.2,
+   "end": 4.44
+  },
+  {
+   "w": "login",
+   "start": 4.44,
+   "end": 4.84
+  },
+  {
+   "w": "with",
+   "start": 4.84,
+   "end": 5.04
+  },
+  {
+   "w": "a",
+   "start": 5.04,
+   "end": 5.16
+  },
+  {
+   "w": "key.",
+   "start": 5.16,
+   "end": 5.36
+  }
+ ],
+ "a04": [
+  {
+   "w": "bots",
+   "start": 0.0,
+   "end": 0.36
+  },
+  {
+   "w": "start",
+   "start": 0.36,
+   "end": 0.66
+  },
+  {
+   "w": "guessing",
+   "start": 0.66,
+   "end": 1.04
+  },
+  {
+   "w": "within",
+   "start": 1.04,
+   "end": 1.4
+  },
+  {
+   "w": "minutes.",
+   "start": 1.4,
+   "end": 1.76
+  }
+ ],
+ "a05": [
+  {
+   "w": "So",
+   "start": 0.0,
+   "end": 0.16
+  },
+  {
+   "w": "I",
+   "start": 0.16,
+   "end": 0.32
+  },
+  {
+   "w": "wrote",
+   "start": 0.32,
+   "end": 0.52
+  },
+  {
+   "w": "one",
+   "start": 0.52,
+   "end": 0.94
+  },
+  {
+   "w": "Ansible",
+   "start": 0.94,
+   "end": 1.46
+  },
+  {
+   "w": "command",
+   "start": 1.46,
+   "end": 1.86
+  },
+  {
+   "w": "that",
+   "start": 1.86,
+   "end": 2.34
+  },
+  {
+   "w": "hardens",
+   "start": 2.34,
+   "end": 2.82
+  },
+  {
+   "w": "any",
+   "start": 2.82,
+   "end": 3.12
+  },
+  {
+   "w": "Ubuntu",
+   "start": 3.12,
+   "end": 3.54
+  },
+  {
+   "w": "or",
+   "start": 3.54,
+   "end": 4.02
+  },
+  {
+   "w": "Deviant",
+   "start": 4.02,
+   "end": 4.48
+  },
+  {
+   "w": "server.",
+   "start": 4.48,
+   "end": 4.72
+  }
+ ],
+ "a06": [
+  {
+   "w": "SSE",
+   "start": 0.0,
+   "end": 0.6
+  },
+  {
+   "w": "keys",
+   "start": 0.6,
+   "end": 0.98
+  },
+  {
+   "w": "only,",
+   "start": 0.98,
+   "end": 1.42
+  },
+  {
+   "w": "never",
+   "start": 1.76,
+   "end": 1.9
+  },
+  {
+   "w": "root,",
+   "start": 1.9,
+   "end": 2.26
+  },
+  {
+   "w": "a",
+   "start": 2.86,
+   "end": 2.9
+  },
+  {
+   "w": "firewall",
+   "start": 2.9,
+   "end": 3.32
+  },
+  {
+   "w": "that",
+   "start": 3.32,
+   "end": 3.54
+  },
+  {
+   "w": "blocks",
+   "start": 3.54,
+   "end": 3.78
+  },
+  {
+   "w": "everything",
+   "start": 3.78,
+   "end": 4.24
+  },
+  {
+   "w": "else,",
+   "start": 4.24,
+   "end": 4.62
+  },
+  {
+   "w": "automatic",
+   "start": 5.42,
+   "end": 5.42
+  },
+  {
+   "w": "security",
+   "start": 5.42,
+   "end": 5.84
+  },
+  {
+   "w": "updates,",
+   "start": 5.84,
+   "end": 6.38
+  },
+  {
+   "w": "and",
+   "start": 6.86,
+   "end": 6.98
+  },
+  {
+   "w": "an",
+   "start": 6.98,
+   "end": 7.08
+  },
+  {
+   "w": "audit",
+   "start": 7.08,
+   "end": 7.4
+  },
+  {
+   "w": "trail.",
+   "start": 7.4,
+   "end": 7.7
+  }
+ ],
+ "a07": [
+  {
+   "w": "Every",
+   "start": 0.0,
+   "end": 0.32
+  },
+  {
+   "w": "risky",
+   "start": 0.32,
+   "end": 0.62
+  },
+  {
+   "w": "file",
+   "start": 0.62,
+   "end": 1.04
+  },
+  {
+   "w": "is",
+   "start": 1.04,
+   "end": 1.24
+  },
+  {
+   "w": "checked",
+   "start": 1.24,
+   "end": 1.56
+  },
+  {
+   "w": "before",
+   "start": 1.56,
+   "end": 1.92
+  },
+  {
+   "w": "it's",
+   "start": 1.92,
+   "end": 2.16
+  },
+  {
+   "w": "written,",
+   "start": 2.16,
+   "end": 2.42
+  },
+  {
+   "w": "so",
+   "start": 2.76,
+   "end": 3.0
+  },
+  {
+   "w": "one",
+   "start": 3.0,
+   "end": 3.26
+  },
+  {
+   "w": "typo",
+   "start": 3.26,
+   "end": 3.62
+  },
+  {
+   "w": "can",
+   "start": 3.62,
+   "end": 3.92
+  },
+  {
+   "w": "never",
+   "start": 3.92,
+   "end": 4.18
+  },
+  {
+   "w": "lock",
+   "start": 4.18,
+   "end": 4.44
+  },
+  {
+   "w": "you",
+   "start": 4.44,
+   "end": 4.64
+  },
+  {
+   "w": "out.",
+   "start": 4.64,
+   "end": 4.88
+  }
+ ],
+ "a08": [
+  {
+   "w": "the",
+   "start": 0.0,
+   "end": 0.12
+  },
+  {
+   "w": "security",
+   "start": 0.12,
+   "end": 0.46
+  },
+  {
+   "w": "score",
+   "start": 0.46,
+   "end": 0.9
+  },
+  {
+   "w": "jumped",
+   "start": 0.9,
+   "end": 1.2
+  },
+  {
+   "w": "from",
+   "start": 1.2,
+   "end": 1.46
+  },
+  {
+   "w": "61",
+   "start": 1.46,
+   "end": 1.88
+  },
+  {
+   "w": "to",
+   "start": 1.88,
+   "end": 2.38
+  },
+  {
+   "w": "77.",
+   "start": 2.38,
+   "end": 2.8
+  }
+ ],
+ "a09": [
+  {
+   "w": "password",
+   "start": 0.0,
+   "end": 0.34
+  },
+  {
+   "w": "login",
+   "start": 0.34,
+   "end": 0.76
+  },
+  {
+   "w": "rejected,",
+   "start": 0.76,
+   "end": 1.7
+  },
+  {
+   "w": "root",
+   "start": 2.56,
+   "end": 2.66
+  },
+  {
+   "w": "rejected,",
+   "start": 2.66,
+   "end": 3.5
+  }
+ ],
+ "a10": [
+  {
+   "w": "brute",
+   "start": 0.0,
+   "end": 0.24
+  },
+  {
+   "w": "force,",
+   "start": 0.24,
+   "end": 0.72
+  },
+  {
+   "w": "banned",
+   "start": 1.14,
+   "end": 1.22
+  },
+  {
+   "w": "after",
+   "start": 1.22,
+   "end": 1.52
+  },
+  {
+   "w": "two",
+   "start": 1.52,
+   "end": 1.72
+  },
+  {
+   "w": "attempts,",
+   "start": 1.72,
+   "end": 2.16
+  },
+  {
+   "w": "and",
+   "start": 2.68,
+   "end": 2.78
+  },
+  {
+   "w": "Prometheus",
+   "start": 2.78,
+   "end": 3.16
+  },
+  {
+   "w": "fires",
+   "start": 3.16,
+   "end": 3.56
+  },
+  {
+   "w": "an",
+   "start": 3.56,
+   "end": 3.82
+  },
+  {
+   "w": "alert.",
+   "start": 3.82,
+   "end": 4.08
+  }
+ ],
+ "a11": [
+  {
+   "w": "someone",
+   "start": 0.0,
+   "end": 0.36
+  },
+  {
+   "w": "turns",
+   "start": 0.36,
+   "end": 0.78
+  },
+  {
+   "w": "password",
+   "start": 0.78,
+   "end": 1.28
+  },
+  {
+   "w": "login",
+   "start": 1.28,
+   "end": 1.68
+  },
+  {
+   "w": "back",
+   "start": 1.68,
+   "end": 2.0
+  },
+  {
+   "w": "on",
+   "start": 2.0,
+   "end": 2.26
+  },
+  {
+   "w": "by",
+   "start": 2.26,
+   "end": 2.48
+  },
+  {
+   "w": "hand.",
+   "start": 2.48,
+   "end": 2.84
+  },
+  {
+   "w": "The",
+   "start": 3.54,
+   "end": 3.64
+  },
+  {
+   "w": "same",
+   "start": 3.64,
+   "end": 3.86
+  },
+  {
+   "w": "command",
+   "start": 3.86,
+   "end": 4.18
+  },
+  {
+   "w": "finds",
+   "start": 4.18,
+   "end": 4.54
+  },
+  {
+   "w": "it",
+   "start": 4.54,
+   "end": 4.82
+  },
+  {
+   "w": "and",
+   "start": 4.82,
+   "end": 5.14
+  },
+  {
+   "w": "puts",
+   "start": 5.14,
+   "end": 5.34
+  },
+  {
+   "w": "it",
+   "start": 5.34,
+   "end": 5.5
+  },
+  {
+   "w": "back.",
+   "start": 5.5,
+   "end": 5.74
+  }
+ ],
+ "a12": [
+  {
+   "w": "run",
+   "start": 0.0,
+   "end": 0.22
+  },
+  {
+   "w": "it",
+   "start": 0.22,
+   "end": 0.38
+  },
+  {
+   "w": "twice,",
+   "start": 0.38,
+   "end": 0.68
+  },
+  {
+   "w": "it",
+   "start": 1.08,
+   "end": 1.1
+  },
+  {
+   "w": "changes",
+   "start": 1.1,
+   "end": 1.44
+  },
+  {
+   "w": "nothing.",
+   "start": 1.44,
+   "end": 1.94
+  },
+  {
+   "w": "That's",
+   "start": 2.56,
+   "end": 2.86
+  },
+  {
+   "w": "how",
+   "start": 2.86,
+   "end": 2.98
+  },
+  {
+   "w": "you",
+   "start": 2.98,
+   "end": 3.14
+  },
+  {
+   "w": "know",
+   "start": 3.14,
+   "end": 3.32
+  },
+  {
+   "w": "it's",
+   "start": 3.32,
+   "end": 3.58
+  },
+  {
+   "w": "safe.",
+   "start": 3.58,
+   "end": 3.74
+  }
+ ],
+ "a13": [
+  {
+   "w": "the",
+   "start": 0.0,
+   "end": 0.14
+  },
+  {
+   "w": "full",
+   "start": 0.14,
+   "end": 0.32
+  },
+  {
+   "w": "project",
+   "start": 0.32,
+   "end": 0.7
+  },
+  {
+   "w": "is",
+   "start": 0.7,
+   "end": 1.06
+  },
+  {
+   "w": "free.",
+   "start": 1.06,
+   "end": 1.42
+  },
+  {
+   "w": "Follow,",
+   "start": 1.8,
+   "end": 2.12
+  },
+  {
+   "w": "and",
+   "start": 2.54,
+   "end": 2.68
+  },
+  {
+   "w": "I'll",
+   "start": 2.68,
+   "end": 2.86
+  },
+  {
+   "w": "show",
+   "start": 2.86,
+   "end": 3.02
+  },
+  {
+   "w": "you",
+   "start": 3.02,
+   "end": 3.16
+  },
+  {
+   "w": "how",
+   "start": 3.16,
+   "end": 3.3
+  },
+  {
+   "w": "to",
+   "start": 3.3,
+   "end": 3.42
+  },
+  {
+   "w": "build",
+   "start": 3.42,
+   "end": 3.56
+  },
+  {
+   "w": "it.",
+   "start": 3.56,
+   "end": 3.76
+  }
+ ]
+}

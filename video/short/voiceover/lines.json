@@ -1,0 +1,145 @@
+[
+ {
+  "id": "a01",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "A bot started guessing passwords on this server. It was banned in seven seconds."
+ },
+ {
+  "id": "a02",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "I didn't lift a finger."
+ },
+ {
+  "id": "a03",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Here's the problem. A fresh Ubuntu server accepts password logins, and lets root log in with a key."
+ },
+ {
+  "id": "a04",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Bots start guessing within minutes."
+ },
+ {
+  "id": "a05",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "So I wrote one Ansible command that hardens any Ubuntu or Debian server."
+ },
+ {
+  "id": "a06",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "S-S-H keys only. Never root. A firewall that blocks everything else. Automatic security updates. And an audit trail."
+ },
+ {
+  "id": "a07",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Every risky file is checked before it's written, so one typo can never lock you out."
+ },
+ {
+  "id": "a08",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "The security score jumped from sixty-one to seventy-seven."
+ },
+ {
+  "id": "a09",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Password login? Rejected. Root? Rejected."
+ },
+ {
+  "id": "a10",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Brute force? Banned after two attempts, and Prometheus fires an alert."
+ },
+ {
+  "id": "a11",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Someone turns password login back on by hand? The same command finds it, and puts it back."
+ },
+ {
+  "id": "a12",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "Run it twice, it changes nothing. That's how you know it's safe."
+ },
+ {
+  "id": "a13",
+  "voice": "Steve",
+  "settings": {
+   "model": "mtl_tts",
+   "exaggeration": 0.65,
+   "cfg_weight": 0.4,
+   "seed": 3000
+  },
+  "tts": "The full project is free. Follow, and I'll show you how to build it."
+ }
+]
